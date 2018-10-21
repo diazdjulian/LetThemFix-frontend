@@ -8,7 +8,7 @@ import validator from 'validator';
 import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
-import { FormControl, Input, InputLabel, FormHelperText, Button, TextField } from '@material-ui/core';
+import { FormControl, Input, InputLabel, FormHelperText, Button, TextField, Select, MenuItem } from '@material-ui/core';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 // Custom Libraries
@@ -30,13 +30,13 @@ class PublicarProblema extends Component {
       problemImages: [],
       rangoPresupuestario: { minimo: 0, maximo: 0 },
       problemType: '',
-      problemZone: '',
       errors: {},
       response: {
         error: false,
         message: '',
       },
       success: false,
+      rubros: [{name: "Plomeria", id: 1}, {name: "Techista", id: 2}, {name: "Electricista", id: 3}, {name: "Albañil", id: 4}]
     };
   }
 
@@ -174,8 +174,8 @@ class PublicarProblema extends Component {
 
         {this.state.success &&
           <Typography variant="subheading" align="center">
-            Publicación de problema exitoso.<br />
-            Analizaremos el mismo y en breve los Fixers podrn verlo.<br />
+            Publicación de problema exitosa.<br />
+            Analizaremos el mismo y en breve los Fixers podran verlo.<br />
             <Link to="/">Vuelve al Dashboard</Link>
           </Typography>
         }
@@ -183,50 +183,83 @@ class PublicarProblema extends Component {
         {!this.state.success &&
         <form className={classes.form} onSubmit={this.handleSubmit}>
           <FormControl margin="normal" required fullWidth>
-            <InputLabel htmlFor="presupuesto">Presupuesto</InputLabel>
+            <InputLabel htmlFor="problemType">Rubro</InputLabel>
+            <Select
+              id="problemType"
+              name="problemType"
+              value={this.state.problemType}
+              onChange={this.handleChange}
+            >
+              <MenuItem value=""><em>Seleccionar</em></MenuItem>
+              {this.state.rubros.map((rubro, index) => {
+                return (
+                  <MenuItem value={rubro.id}>{rubro.name}</MenuItem>
+                );})}
+            </Select>
+            {('problemType' in errors) &&
+            <FormHelperText error>{errors.name}</FormHelperText>
+            }
+          </FormControl>
+          <FormControl margin="normal" required fullWidth>
+            <InputLabel htmlFor="problemTitle">Titulo</InputLabel>
             <Input
-              id="presupuesto"
-              name="presupuesto"
-              type="number"
+              id="problemTitle"
+              name="problemTitle"
               onChange={this.handleChange}
               onBlur={this.handleBlur}
-              error={('presupuesto' in errors)}
+              error={('problemTitle' in errors)}
               autoFocus
               disabled={loading}
             />
-            {('presupuesto' in errors) &&
+            {('problemTitle' in errors) &&
             <FormHelperText error>{errors.name}</FormHelperText>
             }
           </FormControl>
           <FormControl margin="normal" required fullWidth>
             <TextField
-              id="propuesta"
-              name="propuesta"
-              label="Comenta tu propuesta"
+              id="problemDescription"
+              name="problemDescription"
+              label="Comenta tu problema, se preciso"
               multiline
               rowsMax="10"
               onChange={this.handleChange}
               margin="normal"
               onBlur={this.handleBlur}
-              error={('propuesta' in errors)}
+              error={('problemDescription' in errors)}
               disabled={loading}
             />
-            {('propuesta' in errors) &&
+            {('problemDescription' in errors) &&
             <FormHelperText error>{errors.name}</FormHelperText>
             }
           </FormControl>
+          <InputLabel>Ingresa tu rango presupuestario</InputLabel>
           <FormControl margin="normal" required fullWidth>
-            <InputLabel htmlFor="costosVariables">Estima tus costos variables (ej: materiales)</InputLabel>
+            <InputLabel htmlFor="rangoPresupuestario">Desde</InputLabel>
             <Input
-              id="costosVariables"
-              name="costosVariables"
+              id="rangoPresupuestario.minimo"
+              name="rangoPresupuestario.minimo"
               type="number"
               onChange={this.handleChange}
               onBlur={this.handleBlur}
-              error={('costosVariables' in errors)}
+              error={('rangoPresupuestario.minimo' in errors)}
               disabled={loading}
             />
-            { ('costosVariables' in errors) &&
+            { ('rangoPresupuestario.minimo' in errors) &&
+            <FormHelperText error>{errors.email}</FormHelperText>
+            }
+          </FormControl>
+          <FormControl margin="normal" required fullWidth>
+            <InputLabel htmlFor="rangoPresupuestario">hasta</InputLabel>
+            <Input
+              id="rangoPresupuestario.maximo"
+              name="rangoPresupuestario.maximo"
+              type="number"
+              onChange={this.handleChange}
+              onBlur={this.handleBlur}
+              error={('rangoPresupuestario.maximo' in errors)}
+              disabled={loading}
+            />
+            { ('rangoPresupuestario.maximo' in errors) &&
             <FormHelperText error>{errors.email}</FormHelperText>
             }
           </FormControl>
