@@ -19,7 +19,7 @@ class ForgotPassword extends Component {
   constructor() {
     super();
     
-    document.title = 'Forgot Password | Consumer Pilot';
+    document.title = 'Recuperar Contraseña | LetThemFix';
 
     this.state = {
       loading: false,

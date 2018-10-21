@@ -44,8 +44,6 @@ class Problema extends Component {
       },
       message: '',
     };
-    // API endpoint.
-    this.api = 'https://healthdrop.nanosense.app/api/v1/mood';
 
     // Bindings.
     this.clearMessage = this.clearMessage.bind(this);

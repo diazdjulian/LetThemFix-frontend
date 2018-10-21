@@ -19,7 +19,7 @@ class ResetPassword extends Component {
   constructor(props) {
     super(props);
     
-    document.title = 'Reset Password | Consumer Pilot';
+    document.title = 'Rehacer Contraseña | LetThemFix';
 
     this.state = {
       loading: false,
@@ -82,7 +82,7 @@ class ResetPassword extends Component {
     let errors = this.state.errors;
     
     if ('password' === field && false === validator.isLength(value, {min:6})) {
-      errors.password = 'The password field must be at least 6 characters.';
+      errors.password = 'La contraseña debe tener al menos 6 caracteres';
       this.setState(errors);
       return;
     }
@@ -90,7 +90,7 @@ class ResetPassword extends Component {
     if ('password_confirmation' === field ) {
       const password = this.state.password;
       if (password && value !== password) {
-        errors.password_confirmation = 'Password fields must match.';
+        errors.password_confirmation = 'Los campos deben ser identicos';
         this.setState(errors);
         return;
       }
@@ -159,12 +159,12 @@ class ResetPassword extends Component {
     return (
       <Paper className={classes.slimActionForm} elevation={1}>
         <Typography variant="headline" align="center" component="h3">
-          Password Reset
+          Reseteo de Contraseña
         </Typography>
         
         {this.state.success &&
           <Typography variant="subheading" align="center">
-            Your password has been reset!
+            Tu contraseña ha sido reseteada!
           </Typography>
         }
 
@@ -177,7 +177,7 @@ class ResetPassword extends Component {
         {!this.state.success &&
         <form className={classes.form} onSubmit={this.handleSubmit} ref={el => { this.passwordResetForm = el; }}>
           <FormControl margin="normal" required fullWidth>
-            <InputLabel htmlFor="password">Password</InputLabel>
+            <InputLabel htmlFor="password">Contraseña</InputLabel>
             <Input
               name="password"
               type="password"
@@ -191,7 +191,7 @@ class ResetPassword extends Component {
             }
           </FormControl>
           <FormControl margin="normal" required fullWidth>
-            <InputLabel htmlFor="password_confirmation">Password Confirmation</InputLabel>
+            <InputLabel htmlFor="password_confirmation">Re-ingresar contraseña</InputLabel>
             <Input
               name="password_confirmation"
               type="password"
@@ -212,7 +212,7 @@ class ResetPassword extends Component {
             color="primary"
             className={classes.submit}
           >
-            Reset Password
+            Resetear
           </Button>
         </form>
         }

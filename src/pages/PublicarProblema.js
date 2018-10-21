@@ -149,7 +149,7 @@ class PublicarProblema extends Component {
 
   render() {
     // If user is authenticated we redirect to Dashboard.
-    if (this.props.isAuthenticated && this.props.user) {
+    if (!this.props.isAuthenticated || !this.props.user) {
       return <Redirect to="/" replace />;
     }
 

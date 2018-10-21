@@ -25,7 +25,7 @@ class Profile extends Component {
 
   constructor(props) {
     super(props);
-    document.title = 'Profile | Consumer Pilot';
+    document.title = 'Perfil | LetThemFix';
     
     this.state = {
       user: this.props.user
@@ -40,12 +40,12 @@ class Profile extends Component {
     return (
       <Paper className={classes.slimActionForm} elevation={1}>
         <Typography variant="headline" align="center" component="h3">
-          Profile
+          Perfil
         </Typography>
         <List>
           <ListItem>
             <FormControl margin="normal" fullWidth>
-              <InputLabel htmlFor="name">Name</InputLabel>
+              <InputLabel htmlFor="name">Nombre</InputLabel>
               <Input
                 id="name"
                 name="name"

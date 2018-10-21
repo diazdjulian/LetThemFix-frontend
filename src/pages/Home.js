@@ -20,7 +20,7 @@ class Home extends Component {
   constructor() {
     super();
     
-    document.title = 'Nano | Consumer Pilot';
+    document.title = 'Nano | LetThemFix';
 
     this.state = {
       loading: false,

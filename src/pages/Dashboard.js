@@ -17,7 +17,7 @@ class Dashboard extends Component {
   
   constructor(props) {
     super(props);
-    document.title = 'Dashboard | Consumer Pilot';
+    document.title = 'Dashboard | LetThemFix';
     
     // Initial state.
     this.state = {

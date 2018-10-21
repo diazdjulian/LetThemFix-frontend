@@ -19,7 +19,7 @@ class Licitacion extends Component {
   constructor() {
     super();
 
-    document.title = 'Licitar | Consumer Pilot';
+    document.title = 'Licitar | LetThemFix';
 
     this.state = {
       loading: false,
@@ -124,7 +124,7 @@ class Licitacion extends Component {
 
   render() {
     // If user is authenticated we redirect to Dashboard.
-    if (this.props.isAuthenticated && this.props.user) {
+    if (!this.props.isAuthenticated || !this.props.user) {
       return <Redirect to="/" replace />;
     }
 
