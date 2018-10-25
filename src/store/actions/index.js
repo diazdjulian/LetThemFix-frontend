@@ -18,10 +18,3 @@ export function authCheck() {
     type: ActionTypes.AUTH_CHECK,
   };
 }
-
-export function humanApiConnection(payload) {
-  return {
-    type: ActionTypes.HUMAN_API_CONNECTION,
-    payload
-  };
-}

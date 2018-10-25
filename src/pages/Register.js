@@ -12,7 +12,7 @@ import { FormControl, FormLabel, Input, InputLabel, FormHelperText, Button } fro
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import { Stepper, StepLabel, Step } from '@material-ui/core';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 // Custom Libraries
 import AuthService from '../services';
@@ -103,14 +103,22 @@ class Register extends Component {
     };
 
     this.allFieldsCompleted = step => {
-      const stepFields = getStepContent(step, this.state, null, null);
-      let steps = stepFields.props.children
-      for (let element of steps) {
-        if (element.props.required === true && element.props.value === '') {
+      if (step === 0) {
+        if (this.state.userType.length <= 0 || this.state.name.length <= 0 || this.state.lastname.length <= 0 ||
+          this.state.email.length <= 0 || this.state.email_confirmation.length <= 0 || this.state.user.length <= 0 ||
+          this.state.password.length <= 0 || this.state.password_confirmation.length <= 0) {
+            return true;
+          } else {
+            return false;
+          }
+      } else {
+        if (this.state.fiscalId.length <= 0 || this.state.street.length <= 0 || this.state.streetNumber.length <= 0 ||
+        this.state.city.length <= 0 || this.state.state.length <= 0 || this.state.phone.length <= 0) {
+          return true;
+        } else {
           return false;
         }
       }
-      return true;
     }
 
     this.handleChange = this.handleChange.bind(this);
@@ -189,12 +197,20 @@ class Register extends Component {
   
   handleSubmit(e) {
     e.preventDefault();
-    const { name, email, password, password_confirmation, errors } = this.state;
-    const credentials = {
-      name,
-      email,
-      password,
-      password_confirmation,
+    const { userType, name, lastname, email, user, password, fiscalId, street, streetNumber, city, state, phone, errors} = this.state;
+    const registerData = {
+      "nombre": name,
+      "apellido": lastname,
+      "usuario": user,
+      "password": password,
+      "nroFiscal": fiscalId,
+      "fechaNacimiento": "29/07/1994",
+      "telefono": phone,
+      "mail": email,
+      "domicilio": street,
+      "altura": streetNumber,
+      "localidad": city,
+      "provincia": state
     };
 
     // Set response state back to default.
@@ -202,20 +218,19 @@ class Register extends Component {
     
     if (! Object.keys(errors).length) {
       this.setState({ loading: true });
-      this.submit(credentials);
+      this.submit(userType, registerData);
     }
   }
 
-  submit(credentials) {
-    this.props.dispatch(AuthService.register(credentials))
+  submit(userType, registerData) {
+    this.props.dispatch(AuthService.register(userType, registerData))
       .then(() => {
         this.registrationForm.reset();
         this.setState({ loading: false, success: true });
       })
       .catch((err) => {
         console.log(err);
-        const errors = Object.values(err.errors);
-        errors.join(' ');
+        const errors = Object.values(err.error);
         const response = {
           error: true,
           message: errors,
@@ -231,9 +246,8 @@ class Register extends Component {
       return <Redirect to="/" replace />;
     }
 
-    const steps = getSteps();
     const { classes } = this.props;
-    const { activeStep, response } = this.state;
+    const { response, errors, loading } = this.state;
 
     return (
       <Paper className={classes.slimActionForm} elevation={1}>
@@ -246,67 +260,257 @@ class Register extends Component {
             {response.message}
           </Typography>
         }
-        
+
         {this.state.success &&
           <Typography variant="subheading" align="center">
-            Registración exitosa!<br />
+            Registracion exitosa.<br />
             <Link to="/">Por favor, logeate con tu email/usuario y contraseña.</Link>
           </Typography>
         }
 
         {!this.state.success &&
-        <form className={classes.form} onSubmit={this.handleSubmit} ref={el => { this.registrationForm = el; }}>
-          <Stepper activeStep={activeStep}>
-          {steps.map((label, index) => {
-            const props = {};
-            const labelProps = {};
-            if (this.isStepSkipped(index)) {
-              props.completed = false;
+        <form className={classes.form} onSubmit={this.handleSubmit} ref={(el) => { this.registrationForm = el; }}>
+          <FormControl component="fieldset">
+            <FormLabel component="legend">Tipo de Registro</FormLabel>
+            <RadioGroup
+              aria-label="Tipo"
+              name="userType"
+              value={this.state.userType}
+              onChange={this.handleChange}
+            >
+              <FormControlLabel value="user" control={<Radio />} label="Usuario" />
+              <FormControlLabel value="fixer" control={<Radio />} label="Fixer" />
+            </RadioGroup>
+          </FormControl>
+          <FormControl margin="normal" required fullWidth>
+            <InputLabel>Nombre</InputLabel>
+            <Input
+              id="name"
+              name="name"
+              autoComplete="name"
+              onChange={this.handleChange}
+              onBlur={this.handleBlur}
+              autoFocus
+              disabled={loading}
+            />
+            {('name' in errors) &&
+            <FormHelperText error={true}>{errors.name}</FormHelperText>
             }
-            return (
-              <Step key={label} {...props}>
-                <StepLabel {...labelProps}>{label}</StepLabel>
-              </Step>
-            );
-          })}
-        </Stepper>
-        <div>
-          {activeStep === steps.length ? (
-            <div>
-              <Typography className={classes.instructions}>
-                Terminaste - todos los pasos fueron completados!
-              </Typography>
-              <Button onClick={this.handleReset} className={classes.button}>
-                Reiniciar
-              </Button>
-            </div>
-          ) : (
-            <div>
-              <Typography className={classes.instructions}>
-                {getStepContent(activeStep, this.state, this.handleChange, this.handleBlur)}
-              </Typography>
-              <br />
-              <br />
-              <div>
-                <Button
-                  disabled={activeStep === 0}
-                  onClick={this.handleBack}
-                  className={classes.button}>Atras
-                </Button>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={this.handleNext}
-                  className={classes.button}
-                  disabled={this.allFieldsCompleted(activeStep)}>
-                  {activeStep === steps.length - 1 ? 'Registrarse' : 'Siguiente'}
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
+          </FormControl>
+          <FormControl margin="normal" required fullWidth>
+            <InputLabel>Apellido</InputLabel>
+            <Input
+              id="lastname"
+              name="lastname"
+              autoComplete="lastname"
+              
+              onChange={this.handleChange}
+              onBlur={this.handleBlur}
+              error={('lastname' in errors)}
+              autoFocus
+              disabled={loading}
+            />
+            {('lastname' in errors) &&
+            <FormHelperText error={true}>{errors.lastname}</FormHelperText>
+            }
+          </FormControl>
+          <FormControl margin="normal" required fullWidth>
+            <InputLabel>Email</InputLabel>
+            <Input
+              id="email"
+              name="email"
+              autoComplete="email"
+              
+              onChange={this.handleChange}
+              onBlur={this.handleBlur}
+              error={('email' in errors)}
+              disabled={loading}
+            />
+            { ('email' in errors) &&
+            <FormHelperText error={true}>{errors.email}</FormHelperText>
+            }
+          </FormControl>
+          <FormControl margin="normal" required fullWidth>
+            <InputLabel>Confirmar Email</InputLabel>
+            <Input
+              id="email_confirmation"
+              name="email_confirmation"
+              autoComplete="email_confirmation"
+              
+              onChange={this.handleChange}
+              onBlur={this.handleBlur}
+              error={('email_confirmation' in errors)}
+              disabled={loading}
+            />
+            { ('email_confirmation' in errors) &&
+            <FormHelperText error={true}>{errors.email_confirmation}</FormHelperText>
+            }
+          </FormControl>
+          <FormControl margin="normal" required fullWidth>
+          <InputLabel>Usuario</InputLabel>
+          <Input
+            id="user"
+            name="user"
+            autoComplete="user"
+            
+            onChange={this.handleChange}
+            onBlur={this.handleBlur}
+            error={('user' in errors)}
+            autoFocus
+            disabled={loading}
+          />
+          {('user' in errors) &&
+          <FormHelperText error={true}>{errors.user}</FormHelperText>
+          }
+          </FormControl>
+          <FormControl margin="normal" required fullWidth>
+            <InputLabel>Contraseña</InputLabel>
+            <Input
+              id="password"
+              name="password"
+              autoComplete="password"
+              
+              onChange={this.handleChange}
+              onBlur={this.handleBlur}
+              error={('password' in errors)}
+              disabled={loading}
+              type="password"
+            />
+            { ('password' in errors) &&
+            <FormHelperText error={true}>{errors.password}</FormHelperText>
+            }
+          </FormControl>
+          <FormControl margin="normal" required fullWidth>
+            <InputLabel>Confirmar Contraseña</InputLabel>
+            <Input
+              id="password_confirmation"
+              name="password_confirmation"
+              autoComplete="password_confirmation"
+              
+              onChange={this.handleChange}
+              onBlur={this.handleBlur}
+              error={('password_confirmation' in errors)}
+              disabled={loading}
+              type="password"
+            />
+            { ('password_confirmation' in errors) &&
+            <FormHelperText error={true}>{errors.password_confirmation}</FormHelperText>
+            }
+          </FormControl>
+          <FormControl margin="normal" required fullWidth>
+              <InputLabel>Nro. de Identificacion Fiscal</InputLabel>
+              <Input
+                id="fiscalId"
+                name="fiscalId"
+                autoComplete="fiscalId"
+                
+                onChange={this.handleChange}
+                onBlur={this.handleBlur}
+                error={('fiscalId' in errors)}
+                autoFocus
+                disabled={loading}
+              />
+              {('fiscalId' in errors) &&
+              <FormHelperText error={true}>{errors.fiscalId}</FormHelperText>
+              }
+            </FormControl>
+          <FormControl margin="normal" required fullWidth>
+            <InputLabel>Calle</InputLabel>
+            <Input
+              id="street"
+              name="street"
+              autoComplete="street"
+              onChange={this.handleChange}
+              onBlur={this.handleBlur}
+              error={('street' in errors)}
+              autoFocus
+              disabled={loading}
+            />
+            {('street' in errors) &&
+            <FormHelperText error={true}>{errors.street}</FormHelperText>
+            }
+          </FormControl>
+          <FormControl margin="normal" required fullWidth>
+            <InputLabel>Altura</InputLabel>
+            <Input
+              id="streetNumber"
+              name="streetNumber"
+              autoComplete="streetNumber"
+              
+              onChange={this.handleChange}
+              onBlur={this.handleBlur}
+              error={('streetNumber' in errors)}
+              autoFocus
+              disabled={loading}
+            />
+            {('streetNumber' in errors) &&
+            <FormHelperText error={true}>{errors.streetNumber}</FormHelperText>
+            }
+          </FormControl>
+          <FormControl margin="normal" required fullWidth>
+            <InputLabel>Partido</InputLabel>
+            <Input
+              id="city"
+              name="city"
+              autoComplete="city"
+              
+              onChange={this.handleChange}
+              onBlur={this.handleBlur}
+              error={('city' in errors)}
+              autoFocus
+              disabled={loading}
+            />
+            {('city' in errors) &&
+            <FormHelperText error={true}>{errors.city}</FormHelperText>
+            }
+          </FormControl>
+          <FormControl margin="normal" required fullWidth>
+            <InputLabel>Provincia</InputLabel>
+            <Input
+              id="state"
+              name="state"
+              autoComplete="state"
+              
+              onChange={this.handleChange}
+              onBlur={this.handleBlur}
+              error={('state' in errors)}
+              autoFocus
+              disabled={loading}
+            />
+            {('state' in errors) &&
+            <FormHelperText error={true}>{errors.state}</FormHelperText>
+            }
+          </FormControl>
+          <FormControl margin="normal" required fullWidth>
+            <InputLabel>Telefono</InputLabel>
+            <Input
+              id="phone"
+              name="phone"
+              autoComplete="phone"
+              
+              onChange={this.handleChange}
+              onBlur={this.handleBlur}
+              error={('phone' in errors)}
+              autoFocus
+              disabled={loading}
+            />
+            {('phone' in errors) &&
+            <FormHelperText error={true}>{errors.phone}</FormHelperText>
+            }
+          </FormControl>
+          <Button
+            type="submit"
+            fullWidth
+            variant="raised"
+            color="primary"
+            disabled={loading}
+            className={classes.submit}
+          >
+            {loading ? <CircularProgress size={16} className={classes.buttonProgress} /> : 'Registrate'}
+          </Button>
         </form>
         }
+
       </Paper>
     );
   }
@@ -342,265 +546,5 @@ const mapStateToProps = state => ({
   isAuthenticated: state.Auth.isAuthenticated,
   user: state.Auth.user,
 });
-
-function getSteps() {
-  return ['Iniciemos', 'Un poco más'];
-}
-
-function getStepContent(step, state, handleChange, handleBlur) {
-  switch (step) {
-    case 0:
-      return getFirstStep(state, handleChange, handleBlur);
-    case 1:
-      return getSecondStep(state, handleChange, handleBlur);
-    default:
-      return getFirstStep(state, handleChange, handleBlur);
-  }
-}
-
-function getFirstStep(state, handleChange, handleBlur) {
-  const { errors, loading } = state;
-  return (
-  <div>
-    <FormControl component="fieldset">
-      <FormLabel component="legend">Tipo de Registro</FormLabel>
-      <RadioGroup
-        aria-label="Tipo"
-        name="userType"
-        value={state.userType}
-        onChange={handleChange}
-      >
-        <FormControlLabel value="user" control={<Radio />} label="Usuario" />
-        <FormControlLabel value="fixer" control={<Radio />} label="Fixer" />
-      </RadioGroup>
-    </FormControl>
-    <FormControl margin="normal" required fullWidth>
-      <InputLabel>Nombre</InputLabel>
-      <Input
-        id="name"
-        name="name"
-        autoComplete="name"
-        onChange={handleChange}
-        onBlur={handleBlur}
-        autoFocus
-        disabled={loading}
-      />
-      {('name' in errors) &&
-      <FormHelperText error={true}>{errors.name}</FormHelperText>
-      }
-    </FormControl>
-    <FormControl margin="normal" required fullWidth>
-      <InputLabel>Apellido</InputLabel>
-      <Input
-        id="lastname"
-        name="lastname"
-        autoComplete="lastname"
-        
-        onChange={handleChange}
-        onBlur={handleBlur}
-        error={('lastname' in errors)}
-        autoFocus
-        disabled={loading}
-      />
-      {('lastname' in errors) &&
-      <FormHelperText error={true}>{errors.lastname}</FormHelperText>
-      }
-    </FormControl>
-    <FormControl margin="normal" required fullWidth>
-      <InputLabel>Email</InputLabel>
-      <Input
-        id="email"
-        name="email"
-        autoComplete="email"
-        
-        onChange={handleChange}
-        onBlur={handleBlur}
-        error={('email' in errors)}
-        disabled={loading}
-      />
-      { ('email' in errors) &&
-      <FormHelperText error={true}>{errors.email}</FormHelperText>
-      }
-    </FormControl>
-    <FormControl margin="normal" required fullWidth>
-      <InputLabel>Confirmar Email</InputLabel>
-      <Input
-        id="email_confirmation"
-        name="email_confirmation"
-        autoComplete="email_confirmation"
-        
-        onChange={handleChange}
-        onBlur={handleBlur}
-        error={('email_confirmation' in errors)}
-        disabled={loading}
-      />
-      { ('email_confirmation' in errors) &&
-      <FormHelperText error={true}>{errors.email_confirmation}</FormHelperText>
-      }
-    </FormControl>
-    <FormControl margin="normal" required fullWidth>
-    <InputLabel>Usuario</InputLabel>
-    <Input
-      id="user"
-      name="user"
-      autoComplete="user"
-      
-      onChange={handleChange}
-      onBlur={handleBlur}
-      error={('user' in errors)}
-      autoFocus
-      disabled={loading}
-    />
-    {('user' in errors) &&
-    <FormHelperText error={true}>{errors.user}</FormHelperText>
-    }
-  </FormControl>
-    <FormControl margin="normal" required fullWidth>
-      <InputLabel>Contraseña</InputLabel>
-      <Input
-        id="password"
-        name="password"
-        autoComplete="password"
-        
-        onChange={handleChange}
-        onBlur={handleBlur}
-        error={('password' in errors)}
-        disabled={loading}
-        type="password"
-      />
-      { ('password' in errors) &&
-      <FormHelperText error={true}>{errors.password}</FormHelperText>
-      }
-    </FormControl>
-    <FormControl margin="normal" required fullWidth>
-      <InputLabel>Confirmar Contraseña</InputLabel>
-      <Input
-        id="password_confirmation"
-        name="password_confirmation"
-        autoComplete="password_confirmation"
-        
-        onChange={handleChange}
-        onBlur={handleBlur}
-        error={('password_confirmation' in errors)}
-        disabled={loading}
-        type="password"
-      />
-      { ('password_confirmation' in errors) &&
-      <FormHelperText error={true}>{errors.password_confirmation}</FormHelperText>
-      }
-    </FormControl>
-  </div>
-  )
-}
-
-function getSecondStep(state, handleChange, handleBlur) {
-  const { errors, loading } = state;
-  return (
-    <div>
-      <FormControl margin="normal" required fullWidth>
-        <InputLabel>Nro. de Identificacion Fiscal</InputLabel>
-        <Input
-          id="fiscalId"
-          name="fiscalId"
-          autoComplete="fiscalId"
-          
-          onChange={handleChange}
-          onBlur={handleBlur}
-          error={('fiscalId' in errors)}
-          autoFocus
-          disabled={loading}
-        />
-        {('fiscalId' in errors) &&
-        <FormHelperText error={true}>{errors.fiscalId}</FormHelperText>
-        }
-      </FormControl>
-      <FormControl margin="normal" required fullWidth>
-        <InputLabel>Calle</InputLabel>
-        <Input
-          id="street"
-          name="street"
-          autoComplete="street"
-          
-          onChange={handleChange}
-          onBlur={handleBlur}
-          error={('street' in errors)}
-          autoFocus
-          disabled={loading}
-        />
-        {('street' in errors) &&
-        <FormHelperText error={true}>{errors.street}</FormHelperText>
-        }
-      </FormControl>
-      <FormControl margin="normal" required fullWidth>
-        <InputLabel>Altura</InputLabel>
-        <Input
-          id="streetNumber"
-          name="streetNumber"
-          autoComplete="streetNumber"
-          
-          onChange={handleChange}
-          onBlur={handleBlur}
-          error={('streetNumber' in errors)}
-          autoFocus
-          disabled={loading}
-        />
-        {('streetNumber' in errors) &&
-        <FormHelperText error={true}>{errors.streetNumber}</FormHelperText>
-        }
-      </FormControl>
-      <FormControl margin="normal" required fullWidth>
-        <InputLabel>Partido</InputLabel>
-        <Input
-          id="city"
-          name="city"
-          autoComplete="city"
-          
-          onChange={handleChange}
-          onBlur={handleBlur}
-          error={('city' in errors)}
-          autoFocus
-          disabled={loading}
-        />
-        {('city' in errors) &&
-        <FormHelperText error={true}>{errors.city}</FormHelperText>
-        }
-      </FormControl>
-      <FormControl margin="normal" required fullWidth>
-        <InputLabel>Provincia</InputLabel>
-        <Input
-          id="state"
-          name="state"
-          autoComplete="state"
-          
-          onChange={handleChange}
-          onBlur={handleBlur}
-          error={('state' in errors)}
-          autoFocus
-          disabled={loading}
-        />
-        {('state' in errors) &&
-        <FormHelperText error={true}>{errors.state}</FormHelperText>
-        }
-      </FormControl>
-      <FormControl margin="normal" required fullWidth>
-        <InputLabel>Telefono</InputLabel>
-        <Input
-          id="phone"
-          name="phone"
-          autoComplete="phone"
-          
-          onChange={handleChange}
-          onBlur={handleBlur}
-          error={('phone' in errors)}
-          autoFocus
-          disabled={loading}
-        />
-        {('phone' in errors) &&
-        <FormHelperText error={true}>{errors.phone}</FormHelperText>
-        }
-      </FormControl>
-    </div>
-  )
-}
 
 export default connect(mapStateToProps)(withStyles(styles)(Register));

@@ -15,7 +15,7 @@ const routes = [
   {
     path: '/',
     exact: true,
-    auth: false,
+    auth: true,
     component: Dashboard,
     fallback: Home,
   },
@@ -46,37 +46,37 @@ const routes = [
   {
     path: '/profile',
     exact: true,
-    auth: false,
+    auth: true,
     component: Profile,
   },
   {
     path: '/problemas',
     exact: true,
-    auth: false,
+    auth: true,
     component: Problemas,
   },
   {
     path: '/problema:id',
     exact: true,
-    auth: false,
+    auth: true,
     component: Problema,
   },
   {
     path: '/licitar/:problemaId',
     exact: true,
-    auth: false,
+    auth: true,
     component: Licitacion,
   },
   {
     path: '/publicarProblema',
     exact: true,
-    auth: false,
+    auth: true,
     component: PublicarProblema,
   },
   {
     path: '',
     exact: false,
-    auth: false,
+    auth: true,
     component: NoMatch,
   },
 ];

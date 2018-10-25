@@ -5,8 +5,8 @@ import * as actions from './store/actions';
 // API for App
 export const appApiBase = 'localhost:3030';
 
-const token = localStorage.getItem('accessToken');
-axios.defaults.headers.common.Authorization = `Bearer ${token}`;
+// const token = localStorage.getItem('accessToken');
+// axios.defaults.headers.common.Authorization = `Bearer ${token}`;
 
 axios.interceptors.response.use(
   response => response,

@@ -62,7 +62,7 @@ class Login extends Component {
     
     let errors = this.state.errors;
 
-    if ('email' === field && false === validator.isEmail(value)) {
+    if ('email' === field && value.indexOf('@') !== -1 && false === validator.isEmail(value)) {
       errors.email = 'Debes ingresar un mail valido';
       this.setState(errors);
       return;

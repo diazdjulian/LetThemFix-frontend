@@ -49,7 +49,7 @@ class Profile extends Component {
               <Input
                 id="name"
                 name="name"
-                value={this.state.user.name}
+                value={this.state.user.nombre}
                 disabled
                 disableUnderline
                 style={{'color':'#000'}}
@@ -68,7 +68,7 @@ class Profile extends Component {
               <Input
                 id="email"
                 name="email"
-                value={this.state.user.email}
+                value={this.state.user.mail}
                 disabled
                 disableUnderline
                 style={{'color':'#000'}}

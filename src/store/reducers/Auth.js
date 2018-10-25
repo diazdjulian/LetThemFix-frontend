@@ -1,40 +1,25 @@
 import * as ActionTypes from '../action-types';
 import Http from '../../Http';
 
-const user = {
-  id: null,
-  name: null,
-  email: null,
-  accessToken: null,
-  humanId: null,
-  publicToken: null
-};
-
 const initialState = {
   isAuthenticated: false,
-  user,
+  user: null,
 };
 
 const authLogin = (state, payload) => {
-  const { access_token: AccessToken, user } = payload;
-  localStorage.setItem('access_token', AccessToken);
-  localStorage.setItem('user', JSON.stringify(user));
-  Http.defaults.headers.common.Authorization = `Bearer ${AccessToken}`;
+  localStorage.setItem('user', JSON.stringify(payload));
   const stateObj = Object.assign({}, state, {
     isAuthenticated: true,
-    user,
+    user: JSON.parse( localStorage.getItem('user') ),
   });
   return stateObj;
 };
 
 const checkAuth = (state) => {
   const stateObj = Object.assign({}, state, {
-    isAuthenticated: !!localStorage.getItem('access_token'),
+    isAuthenticated: !!localStorage.getItem('user'),
     user: JSON.parse( localStorage.getItem('user') )
   });
-  if (state.isAuthenticated) {
-    Http.defaults.headers.common.Authorization = `Bearer ${localStorage.getItem('access_token')}`;
-  }
   return stateObj;
 };
 
@@ -43,11 +28,10 @@ const logout = (state) => {
   localStorage.removeItem('user');
   const stateObj = Object.assign({}, state, {
     isAuthenticated: false,
-    user,
+    user: null,
   });
   return stateObj;
 };
-
 
 const Auth = (state = initialState, { type, payload = null }) => {
   switch (type) {

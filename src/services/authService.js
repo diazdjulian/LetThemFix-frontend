@@ -1,39 +1,21 @@
 import Http from '../Http';
 import * as action from '../store/actions';
+import axios from 'axios';
 
-const apiBase = 'https://healthdrop.nanosense.app';
+const apiBase = 'http://localhost:8080/tp_fixers/';
 
 export function login(credentials) {
   return dispatch => (
     new Promise((resolve, reject) => {
-      dispatch(action.authLogin({"AccessToken":"qedqwdwedfwedew", "user":{"name":"Julian", "email":credentials.email}}));
-      return resolve();
-      // Http.post(apiBase + '/api/v1/auth/login', credentials)
-      //   .then((res) => {
-      //     dispatch(action.authLogin(res.data));
-      //     return resolve();
-      //   })
-      //   .catch((err) => {
-      //     const response = err.hasOwnProperty('response') ? err.response.data : {};
-      //     const msg = ['Error logging in. No response from server.'];
-      //     const { status = 403 , errors = msg } = response;
-      //     const data = {
-      //       status,
-      //       errors,
-      //     };
-      //     return reject(data);
-      //   });
-    })
-  );
-}
-
-export function register(credentials) {
-  return dispatch => (
-    new Promise((resolve, reject) => {
-      Http.post(apiBase + '/api/v1/auth/register', credentials)
-        .then(res => resolve(res.data))
+      Http.post(apiBase + 'actionLogin', credentials)
+        .then((res) => {
+          dispatch(action.authLogin(res.data));
+          return resolve();
+        })
         .catch((err) => {
-          const { status, errors } = err.response.data;
+          const response = err.hasOwnProperty('error') ? err.error : {};
+          const msg = ['Error logging in. No response from server.'];
+          const { status = 403 , errors = msg } = response;
           const data = {
             status,
             errors,
@@ -42,6 +24,32 @@ export function register(credentials) {
         });
     })
   );
+}
+
+export function register(userType, registerData) {
+  if (userType === 'user') {
+    return dispatch => (
+      new Promise((resolve, reject) => {
+        Http.post(apiBase + 'actionClientes', registerData)
+          .then(res => resolve(res.data))
+          .catch((err) => {
+            const error = err.error;
+            return reject(error);
+          });
+      })
+    );
+  } else {
+    return dispatch => (
+      new Promise((resolve, reject) => {
+        Http.post(apiBase + 'actionProfesionales', registerData)
+          .then(res => resolve(res.data))
+          .catch((err) => {
+            const error = err.error;
+            return reject(error);
+          });
+      })
+    );
+  }
 }
 
 export function resetPassword(credentials) {

@@ -64,14 +64,14 @@ class Home extends Component {
     
     let errors = this.state.errors;
 
-    if ('email' === field && false === validator.isEmail(value)) {
-      errors.email = 'The email field must be a valid email.';
+    if ('email' === field && value.indexOf('@') !== -1 && false === validator.isEmail(value)) {
+      errors.email = 'Debes ingresar un mail valido';
       this.setState(errors);
       return;
     }
     
     if ('password' === field && false === validator.isLength(value, {min:6})) {
-      errors.password = 'The password field must be at least 6 characters.';
+      errors.password = 'Debes ingresar tu contraseña';
       this.setState(errors);
       return;
     }
