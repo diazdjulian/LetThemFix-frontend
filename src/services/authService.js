@@ -1,6 +1,5 @@
 import Http from '../Http';
 import * as action from '../store/actions';
-import axios from 'axios';
 
 const apiBase = 'http://localhost:8080/tp_fixers/';
 
@@ -13,14 +12,7 @@ export function login(credentials) {
           return resolve();
         })
         .catch((err) => {
-          const response = err.hasOwnProperty('error') ? err.error : {};
-          const msg = ['Error logging in. No response from server.'];
-          const { status = 403 , errors = msg } = response;
-          const data = {
-            status,
-            errors,
-          };
-          return reject(data);
+          return reject(err.response);
         });
     })
   );

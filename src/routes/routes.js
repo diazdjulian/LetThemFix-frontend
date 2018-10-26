@@ -56,7 +56,7 @@ const routes = [
     component: Problemas,
   },
   {
-    path: '/problema:id',
+    path: '/problema/:id',
     exact: true,
     auth: true,
     component: Problema,

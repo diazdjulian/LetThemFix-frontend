@@ -103,10 +103,9 @@ class Login extends Component {
     this.props.dispatch(AuthService.login(credentials))
       .catch((err) => {
         this.loginForm.reset();
-        const errors = Object.values(err.errors).join(' ');
         const response = {
           error: true,
-          message: errors,
+          message: err.data,
         };
         this.setState({ response });
         this.setState({ loading: false });

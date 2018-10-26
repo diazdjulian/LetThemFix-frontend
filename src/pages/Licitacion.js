@@ -16,20 +16,19 @@ import { licitar } from '../services/dataService';
 
 
 class Licitacion extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
 
     document.title = 'Licitar | LetThemFix';
 
     this.state = {
       loading: false,
-      fixerId: 0,
-      clientId: 0,
-      problemId: 0,
-      licitacionId: 0,
-      licitacionPresupuesto: 0,
-      licitacionPropuesta: '',
-      licitacionCostosVariables: 0,
+      user: props.user,
+      problemId: props.match.params.problemaId,
+      presupuesto: 0,
+      propuesta: '',
+      costosVariables: 0,
+      cantidadJornadasLab: 0,
       errors: {},
       response: {
         error: false,
@@ -86,12 +85,13 @@ class Licitacion extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    const {
-      fixerId, clientId, problemId, licitacionId, licitacionPresupuesto, licitacionPropuesta,
-      licitacionCostosVariables, errors,
-    } = this.state;
+    const { presupuesto, propuesta, costosVariables, cantidadJornadasLab, problemId, errors } = this.state;
     const licitacionData = {
-      fixerId, clientId, problemId, licitacionId, licitacionPresupuesto, licitacionPropuesta, licitacionCostosVariables
+      "observacion": propuesta,
+      "valor": presupuesto,
+      "cantJornadasLaborables": cantidadJornadasLab,
+      "valorMateriales": costosVariables,
+      "idProblema": problemId,
     };
 
     // Set response state back to default.
@@ -149,8 +149,8 @@ class Licitacion extends Component {
 
         {this.state.success &&
           <Typography variant="subheading" align="center">
-            Registration successful.<br />
-            <Link to="/">Please log in with your new email and password.</Link>
+            Presupuesto enviado.<br />
+            <Link to="/">Volver al Dashboard.</Link>
           </Typography>
         }
 
@@ -202,6 +202,21 @@ class Licitacion extends Component {
               disabled={loading}
             />
             { ('costosVariables' in errors) &&
+            <FormHelperText error>{errors.email}</FormHelperText>
+            }
+          </FormControl>
+          <FormControl margin="normal" fullWidth>
+            <InputLabel htmlFor="cantidadJornadasLab">Estima tus jornadas laborales en dias</InputLabel>
+            <Input
+              id="cantidadJornadasLab"
+              name="cantidadJornadasLab"
+              type="number"
+              onChange={this.handleChange}
+              onBlur={this.handleBlur}
+              error={('cantidadJornadasLab' in errors)}
+              disabled={loading}
+            />
+            { ('cantidadJornadasLab' in errors) &&
             <FormHelperText error>{errors.email}</FormHelperText>
             }
           </FormControl>

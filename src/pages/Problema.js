@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { Redirect } from 'react-router'
+
+import { aceptarLicitacion, obtenerProblema, obtenerPresupuestosDeProblema } from '../services/dataService';
 
 // Material Components
 import { withStyles } from '@material-ui/core/styles/';
@@ -29,19 +32,10 @@ class Problema extends Component {
     // Initial state.
     this.state = {
       user: props.user,
-      problemData: {
-        problemId: 1,
-        problemTitle: "Arreglar cañeria de pileta de cocina",
-        problemDescription: "Se rompio el desagote de la pileta, va directo al piso. Hay un codo en el piso de plastico y esta roto.",
-        rangoPresupuestario: {
-          minimo: 1000,
-          maximo: 3500
-        },
-        problemType: "Plomeria",
-        problemZone: "Quilmes",
-        userCalification: "7 / 10",
-        problemImages: ["DNI-Dorso.jpg", "DNI-Frente.jpg"]
-      },
+      problemId: this.props.match.params.id,
+      problemData: null,
+      presupuestos: [],
+      presupuestoAceptado: null,
       message: '',
     };
 
@@ -49,25 +43,83 @@ class Problema extends Component {
     this.clearMessage = this.clearMessage.bind(this);
   }
 
+  componentWillMount() {
+    this.props.dispatch(obtenerProblema(this.state.problemId))
+    .then((response) => {
+      this.setState({ problemData: response[0] }, this.checkForSettledPresupuesto(response[0]));
+    })
+    .catch((err) => {
+      const response = {
+        error: true,
+        message: err.data,
+      };
+      this.setState({ response });
+      this.setState({ loading: false });
+    });
+
+    if (typeof this.state.user.idCliente !== 'undefined') {
+      this.props.dispatch(obtenerPresupuestosDeProblema(this.state.problemId))
+      .then((response) => {
+        if (response) {
+        this.setState({ presupuestos: response });
+      } else {
+        this.setState({ presupuestos: [] });
+      }
+      })
+      .catch((err) => {
+        const response = {
+          error: true,
+          message: err.data,
+        };
+        this.setState({ response });
+        this.setState({ loading: false });
+      });
+    }
+  }
+
+  checkForSettledPresupuesto(respuesta) {
+    if (respuesta.presupuesto) {
+      this.setState({ presupuestoAceptado: respuesta.presupuesto });
+    }
+  }
+
+
+
   clearMessage() {
     this.setState({ message: '' });
   }
 
-  
+  aceptarPresupuesto(idPresupuesto) {
+    this.props.dispatch(aceptarLicitacion(idPresupuesto, this.state.problemId))
+    .then((response) => {
+      return <Redirect to={'/problema/' + this.state.problemId} />
+    })
+    .catch((err) => {
+      const response = {
+        error: true,
+        message: err.data,
+      };
+      this.setState({ response });
+      this.setState({ loading: false });
+    });
+  }
+
   render() {
     
     const { classes } = this.props;
+    const { problemId, problemData, user, presupuestos, presupuestoAceptado } = this.state;
 
     return (
       <main className={classes.layout}>
+      {problemData &&
         <Grid container spacing={24}>
 
           {/* --- Problema --- */}
           <Grid item xs={12} md={12}>
             <Card>
                 <CardHeader
-                  title={this.state.problemData.problemTitle}
-                  subheader={this.state.problemData.problemDescription}
+                  title={this.state.problemData.titulo}
+                  subheader={this.state.problemData.descripcion}
                   titleTypographyProps={{ align: 'center' }}
                   subheaderTypographyProps={{ align: 'center' }}
                   className={classes.cardHeader}
@@ -88,10 +140,10 @@ class Problema extends Component {
                 <CardContent>
                   <div className={classes.cardPricing}>
                     <Typography variant="display1" color="textPrimary" align="center">
-                      MIN ${this.state.problemData.rangoPresupuestario.minimo}
+                      MIN ${this.state.problemData.presupuestoMinimo}
                     </Typography>
                     <Typography variant="display1" color="textPrimary" align="center">
-                      MAX ${this.state.problemData.rangoPresupuestario.maximo}
+                      MAX ${this.state.problemData.presupuestoMaximo}
                     </Typography>
                   </div>
                 </CardContent>
@@ -110,13 +162,13 @@ class Problema extends Component {
                 <CardContent>
                   <div className={classes.cardPricing}>
                   <Typography variant="title" color="textPrimary" align="center">
-                      Zona: {this.state.problemData.problemZone}
+                      Zona: {this.state.problemData.zona}
                     </Typography>
                     <Typography variant="title" color="textPrimary" align="center">
-                      Rubro: {this.state.problemData.problemType}
+                      Rubro: {this.state.problemData.rubro.descripcion}
                     </Typography>
                     <Typography variant="title" color="textPrimary" align="center">
-                      Calificación Usuario: {this.state.problemData.userCalification}
+                      Calificación Usuario: {this.state.problemData.cliente.calificacionPromedio}
                     </Typography>
                   </div>
                 </CardContent>
@@ -124,23 +176,119 @@ class Problema extends Component {
           </Grid>
 
           {/* --- Licitar --- */}
-          <Grid item xs={12} md={4}>
+          {user.idProfesional &&
+            <Grid item xs={12} md={4}>
+              <Card>
+                  <CardHeader
+                    title="Licitar"
+                    subheader="Propone al Cliente un presupuesto"
+                    titleTypographyProps={{ align: 'center' }}
+                    subheaderTypographyProps={{ align: 'center' }}
+                    className={classes.cardHeader}
+                  />
+                  <CardActions style={{justifyContent: 'center'}}>
+                    <Button variant="raised" color="primary"size="small"
+                      href={'/licitar/' + problemId}>Licitar</Button>
+                  </CardActions>
+                </Card>
+            </Grid>
+          }
+
+          {user.idCliente && presupuestoAceptado == null && presupuestos.length > 0 &&
+            <Grid item xs={12} md={12}>
             <Card>
                 <CardHeader
-                  title="Licitar"
-                  subheader="Propone al Cliente un presupuesto"
+                  title="Presupuesto Recibidos"
+                  subheader="Estas son las propuestos de los Fixers"
                   titleTypographyProps={{ align: 'center' }}
                   subheaderTypographyProps={{ align: 'center' }}
                   className={classes.cardHeader}
                 />
-                <CardActions style={{justifyContent: 'center'}}>
-                  <Button variant="raised" color="primary"size="small"
-                    href={'/licitar/' + this.state.problemData.problemId}>Licitar</Button>
-                </CardActions>
+                <hr></hr>
+                <CardContent>
+                  <div className={classes.cardPricing}>
+                  {presupuestos.length > 0 && presupuestos.map((presupuesto, index) => {
+                    return (
+                      <div>
+                        <Typography variant="title" color="textPrimary" align="center">
+                          Propuesta {presupuesto.observacion}
+                        </Typography>
+                        <Typography variant="title" color="textPrimary" align="center">
+                          Valor ${presupuesto.valor}
+                        </Typography>
+                        <Typography variant="title" color="textPrimary" align="center">
+                          Cantidad de Dias ${presupuesto.cantJornadasLaborables}
+                        </Typography>
+                        <Typography variant="title" color="textPrimary" align="center">
+                          Costos Variables (ej: materiales) ${presupuesto.valorMateriales}
+                        </Typography>
+                        <CardActions style={{justifyContent: 'center'}}>
+                          <Button variant="raised" color="primary"size="small" onClick={() => {this.aceptarPresupuesto(presupuesto.idPresupuesto)}}>Aprobar</Button>
+                        </CardActions>
+                        <hr></hr>
+                      </div>
+                    );
+                  })}
+                  </div>
+                </CardContent>
               </Card>
-          </Grid>
+            </Grid>
+          }
 
-          {/* --- Fotos-Videos --- */}
+          {user.idCliente && presupuestoAceptado == null && presupuestos.length == 0 &&
+            <Grid item xs={12} md={12}>
+            <Card>
+                <CardHeader
+                  title="Presupuesto Recibidos"
+                  subheader="Estas son las propuestos de los Fixers"
+                  titleTypographyProps={{ align: 'center' }}
+                  subheaderTypographyProps={{ align: 'center' }}
+                  className={classes.cardHeader}
+                />
+                <hr></hr>
+                <CardContent>
+                  <div className={classes.cardPricing}>
+                    <Typography variant="title" color="textPrimary" align="center">
+                      Todavia no hay propuestas :(
+                    </Typography>
+                  </div>
+                </CardContent>
+              </Card>
+            </Grid>
+          }
+
+          {user.idCliente && presupuestoAceptado != null && 
+            <Grid item xs={12} md={12}>
+            <Card>
+                <CardHeader
+                  title="Presupuesto Asignado"
+                  subheader="Este es el presupuesto asignado"
+                  titleTypographyProps={{ align: 'center' }}
+                  subheaderTypographyProps={{ align: 'center' }}
+                  className={classes.cardHeader}
+                />
+                <hr></hr>
+                <CardContent>
+                  <div className={classes.cardPricing}>
+                    <Typography variant="title" color="textPrimary" align="center">
+                      Propuesta {presupuestoAceptado.observacion}
+                    </Typography>
+                    <Typography variant="title" color="textPrimary" align="center">
+                      Valor ${presupuestoAceptado.valor}
+                    </Typography>
+                    <Typography variant="title" color="textPrimary" align="center">
+                      Cantidad de Dias ${presupuestoAceptado.cantJornadasLaborables}
+                    </Typography>
+                    <Typography variant="title" color="textPrimary" align="center">
+                      Costos Variables (ej: materiales) ${presupuestoAceptado.valorMateriales}
+                    </Typography>
+                  </div>
+                </CardContent>
+              </Card>
+            </Grid>
+          }
+
+          {/* --- Fotos-Videos ---
           <Grid item xs={12} md={8}>
             <Carousel width="750px" showThumbs={false} showStatus={false} autoPlay={true} infiniteLoop={true}>
               {this.state.problemData.problemImages.map((imagePath, index) => {
@@ -151,9 +299,10 @@ class Problema extends Component {
                 );
               })}
             </Carousel>
-          </Grid>
+          </Grid> */}
 
         </Grid>
+      }
       </main>
     );
 

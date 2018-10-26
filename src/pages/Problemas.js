@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { obtenerProblema, obtenerProblemasTodos, obtenerProblemasDeCliente } from '../services/dataService';
 
 // Material Components
 import { withStyles } from '@material-ui/core/styles/';
@@ -30,66 +31,95 @@ class Problemas extends Component {
       selected: '',
       message: '',
       data_id: false,
+      problemas: []
     };
 
     // Problems
-    this.problemas = [
-      {
-        problemId: 1,
-        problemTitle: "Arreglar cañeria de pileta de cocina",
-        problemDescription: "Se rompio el desagote de la pileta, va directo al piso. Hay un codo en el piso de plastico y esta roto.",
-        rangoPresupuestario: {
-          minimo: 1000,
-          maximo: 3500
-        },
-        problemType: "Plomeria",
-        problemZone: "Quilmes",
-        userCalification: "7 / 10"
-      },
-      {
-        problemId: 2,
-        problemTitle: "Poner baldosas en entrada de casa",
-        problemDescription: "Hicimos toda la vereda nueva y necesitamos poner las baldosas. Con el agujero para el medidor de agua.",
-        rangoPresupuestario: {
-          minimo: 5000,
-          maximo: 7500
-        },
-        problemType: "Albañeria",
-        problemZone: "Burzaco",
-        userCalification: "7 / 10"
-      },
-      {
-        problemId: 3,
-        problemTitle: "Reemplazar tejas",
-        problemDescription: "Tengo un techo a dos aguas y necesito reemplazar unas 15 tejas, y chequear que el resto esten clavadas.",
-        rangoPresupuestario: {
-          minimo: 1500,
-          maximo: 2700
-        },
-        problemType: "Techos",
-        problemZone: "Barrio Norte, CABA",
-        userCalification: "7 / 10"
-      }
-    ];
-
-    // API endpoint.
-    this.api = 'https://healthdrop.nanosense.app/api/v1/mood';
+    // this.problemas = [
+    //   {
+    //     problemId: 1,
+    //     problemTitle: "Arreglar cañeria de pileta de cocina",
+    //     problemDescription: "Se rompio el desagote de la pileta, va directo al piso. Hay un codo en el piso de plastico y esta roto.",
+    //     rangoPresupuestario: {
+    //       minimo: 1000,
+    //       maximo: 3500
+    //     },
+    //     problemType: "Plomeria",
+    //     problemZone: "Quilmes",
+    //     userCalification: "7 / 10"
+    //   },
+    //   {
+    //     problemId: 2,
+    //     problemTitle: "Poner baldosas en entrada de casa",
+    //     problemDescription: "Hicimos toda la vereda nueva y necesitamos poner las baldosas. Con el agujero para el medidor de agua.",
+    //     rangoPresupuestario: {
+    //       minimo: 5000,
+    //       maximo: 7500
+    //     },
+    //     problemType: "Albañeria",
+    //     problemZone: "Burzaco",
+    //     userCalification: "7 / 10"
+    //   },
+    //   {
+    //     problemId: 3,
+    //     problemTitle: "Reemplazar tejas",
+    //     problemDescription: "Tengo un techo a dos aguas y necesito reemplazar unas 15 tejas, y chequear que el resto esten clavadas.",
+    //     rangoPresupuestario: {
+    //       minimo: 1500,
+    //       maximo: 2700
+    //     },
+    //     problemType: "Techos",
+    //     problemZone: "Barrio Norte, CABA",
+    //     userCalification: "7 / 10"
+    //   }
+    // ];
   }
   
+  componentWillMount() {
+    if (typeof this.state.user.idCliente !== 'undefined') {
+      this.props.dispatch(obtenerProblemasDeCliente(this.state.user.idCliente))
+      .then((response) => {
+        this.setState({ problemas: response });
+      })
+      .catch((err) => {
+        const response = {
+          error: true,
+          message: err.data,
+        };
+        this.setState({ response });
+        this.setState({ loading: false });
+      });
+    } else if (typeof this.state.user.idProfesional !== 'undefined') {
+      this.props.dispatch(obtenerProblemasTodos())
+      .then((response) => {
+        this.setState({ problemas: response });
+      })
+      .catch((err) => {
+        const response = {
+          error: true,
+          message: err.data,
+        };
+        this.setState({ response });
+        this.setState({ loading: false });
+      });
+    }
+  }
+
   render() {
     
     const { classes } = this.props;
+    const { problemas } = this.state;
 
     return (
       <main className={classes.layout}>
         <Grid container spacing={24}>
-          {this.problemas.map((problema, index) => {
+          {problemas.length > 0 && problemas.map((problema, index) => {
             return (
             <Grid item xs={12} md={20} spacing={20}>
               <Card>
                 <CardHeader
-                  title={problema.problemTitle}
-                  subheader={problema.problemDescription}
+                  title={problema.titulo}
+                  subheader={problema.descripcion}
                   titleTypographyProps={{ align: 'center', variant: 'display3' }}
                   subheaderTypographyProps={{ align: 'center' }}
                   className={classes.cardHeader}
@@ -97,21 +127,21 @@ class Problemas extends Component {
                 <CardContent>
                   <div className={classes.cardPricing}>
                     <Typography variant="display2" color="textPrimary" align="center">
-                      ${problema.rangoPresupuestario.minimo}-{problema.rangoPresupuestario.maximo}
+                      ${problema.presupuestoMinimo}-{problema.presupuestoMaximo}
                     </Typography>
                     <Typography variant="body1" color="textPrimary" align="left">
-                      Rubro: {problema.problemType}
+                      Rubro: {problema.rubro.descripcion}
                     </Typography>
                     <Typography variant="body1" color="textPrimary" align="left">
-                      Zona: {problema.problemZone}
+                      Zona: {problema.zona}
                     </Typography>
                     <Typography variant="body1" color="textPrimary" align="left">
-                      Calificacion Usuario: {problema.userCalification}
+                      Calificacion Usuario: {problema.cliente.calificacionPromedio}
                     </Typography>
                   </div>
                 </CardContent>
                 <CardActions style={{justifyContent: 'center'}}>
-                  <Button variant="raised" color="primary"size="small" href={"/problema:" + problema.problemId}>Ver más</Button>
+                  <Button variant="raised" color="primary"size="small" href={"/problema/" + problema.idProblema}>Ver más</Button>
                 </CardActions>
               </Card>
             </Grid>);
@@ -145,7 +175,7 @@ const styles = theme => ({
 
 const mapStateToProps = state => ({
   isAuthenticated: state.Auth.isAuthenticated,
-  user: state.Auth.user,
+  user: state.Auth.user
 });
 
 export default connect(mapStateToProps)(withStyles(styles)(Problemas));

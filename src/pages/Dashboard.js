@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Redirect } from 'react-router-dom';
-
+import dataService from '../services'
 // Material Components
 import { withStyles } from '@material-ui/core/styles/';
 import Grid from '@material-ui/core/Grid';
@@ -12,6 +12,7 @@ import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import CardHeader from '@material-ui/core/CardHeader';
 
+import { obtenerProblema, obtenerProblemasTodos, obtenerProblemasDeCliente } from '../services/dataService';
 
 class Dashboard extends Component {
   
@@ -21,41 +22,100 @@ class Dashboard extends Component {
     
     // Initial state.
     this.state = {
-      loading: false,
+      loading: false, 
       user: props.user,
+      problemas: []
     };
+  }
+
+  componentWillMount() {
+    if (typeof this.state.user.idCliente !== 'undefined') {
+      this.props.dispatch(obtenerProblemasDeCliente(this.state.user.idCliente))
+      .then((response) => {
+        this.setState({ problemas: response });
+      })
+      .catch((err) => {
+        const response = {
+          error: true,
+          message: err.data,
+        };
+        this.setState({ response });
+        this.setState({ loading: false });
+      });
+    } else if (typeof this.state.user.idProfesional !== 'undefined') {
+      this.props.dispatch(obtenerProblemasTodos())
+      .then((response) => {
+        this.setState({ problemas: response });
+      })
+      .catch((err) => {
+        const response = {
+          error: true,
+          message: err.data,
+        };
+        this.setState({ response });
+        this.setState({ loading: false });
+      });
+    }
   }
 
   render() {
     const { classes } = this.props;
+    const { user, problemas } = this.state;
 
     return (
       <main className={classes.layout}>
-
         <Grid container spacing={24}>
         
           {/* --- Problema Publicados --- */}
-          <Grid item xs={12} md={8}>
-            <Card>
-                <CardHeader
-                  title="Problemas Públicados"
-                  subheader="Problemas públicados con tus rubros"
-                  titleTypographyProps={{ align: 'center' }}
-                  subheaderTypographyProps={{ align: 'center' }}
-                  className={classes.cardHeader}
-                />
-                <CardContent>
-                  <div className={classes.cardPricing}>
-                    <Typography variant="display2" color="textPrimary" align="center">
-                      1,203
-                    </Typography>
-                  </div>
-                </CardContent>
-                <CardActions style={{justifyContent: 'center'}}>
-                  <Button variant="raised" color="primary"size="small" href="/problemas">Ver todos</Button>
-                </CardActions>
-              </Card>
-          </Grid>
+          {user.idProfesional &&
+            <Grid item xs={12} md={8}>
+              <Card>
+                  <CardHeader
+                    title="Problemas Públicados"
+                    subheader="Problemas públicados con tus rubros"
+                    titleTypographyProps={{ align: 'center' }}
+                    subheaderTypographyProps={{ align: 'center' }}
+                    className={classes.cardHeader}
+                  />
+                  <CardContent>
+                    <div className={classes.cardPricing}>
+                      <Typography variant="display2" color="textPrimary" align="center">
+                        {problemas && problemas.length > 0 ? problemas.length : 'Sin problemas'}
+                      </Typography>
+                    </div>
+                  </CardContent>
+                  <CardActions style={{justifyContent: 'center'}}>
+                    <Button variant="raised" color="primary"size="small" href="/problemas">Ver todos</Button>
+                  </CardActions>
+                </Card>
+            </Grid>
+          }
+
+          {/* --- Problema Publicados Por El Usuario--- */}
+            {user.idCliente &&
+            <Grid item xs={12} md={8}>
+              <Card>
+                  <CardHeader
+                    title="Tus Problemas"
+                    subheader="Tus problemas públicados"
+                    titleTypographyProps={{ align: 'center' }}
+                    subheaderTypographyProps={{ align: 'center' }}
+                    className={classes.cardHeader}
+                  />
+                  <CardContent>
+                    <div className={classes.cardPricing}>
+                      <Typography variant="display2" color="textPrimary" align="center">
+                      {problemas && problemas.length > 0 ? problemas.length : 'Sin problemas'}
+                      </Typography>
+                    </div>
+                  </CardContent>
+                  <CardActions style={{justifyContent: 'center'}}>
+                    <Button variant="raised" color="primary"size="small" href="/problemas">Ver todos</Button>
+                    <Button variant="raised" color="primary"size="small" href="/publicarProblema">Publica</Button>
+                  </CardActions>
+                </Card>
+            </Grid> 
+           }
           
           {/* --- Calificacion --- */}
           <Grid item xs={12} md={4}>
@@ -70,7 +130,7 @@ class Dashboard extends Component {
                 <CardContent>
                   <div className={classes.cardPricing}>
                     <Typography variant="display2" color="textPrimary" align="center">
-                      7.7 / 10
+                      {user.calificacionPromedio} / 10
                     </Typography>
                   </div>
                 </CardContent>
@@ -78,6 +138,7 @@ class Dashboard extends Component {
           </Grid>
           
           {/* --- Ultimos Trabajos Realizados --- */}
+          {user.idProfesional &&
           <Grid item xs={12} md={4}>
             <Card>
                 <CardHeader
@@ -96,8 +157,10 @@ class Dashboard extends Component {
                 </CardContent>
               </Card>
           </Grid>
-          
+          }
+
           {/* --- Trabajos Activos --- */}
+          {user.idProfesional &&
           <Grid item xs={12} md={4}>
             <Card>
                 <CardHeader
@@ -116,7 +179,8 @@ class Dashboard extends Component {
                 </CardContent>
               </Card>
           </Grid>
-          
+          }
+
           {/* --- Calificacion Promedio del Rubro ---
           <Grid item xs={12} md={4}>
             <Card>
@@ -138,6 +202,7 @@ class Dashboard extends Component {
           </Grid> */}
           
           {/* --- Ingresos Historicos --- */}
+          {user.idProfesional &&
           <Grid item xs={12} md={4}>
             <Card>
                 <CardHeader
@@ -156,8 +221,10 @@ class Dashboard extends Component {
                 </CardContent>
               </Card>
           </Grid>
-          
+          }
+
           {/* --- Ingresos del ultimo mes --- */}
+          {user.idProfesional &&
           <Grid item xs={12} md={4}>
             <Card>
                 <CardHeader
@@ -176,8 +243,10 @@ class Dashboard extends Component {
                 </CardContent>
               </Card>
           </Grid>
-          
+          }
+
           {/* --- Promedio de Ingreso --- */}
+          {user.idProfesional &&
           <Grid item xs={12} md={4}>
             <Card>
                 <CardHeader
@@ -196,6 +265,7 @@ class Dashboard extends Component {
                 </CardContent>
               </Card>
           </Grid>
+          }
 
           </Grid>
       </main>

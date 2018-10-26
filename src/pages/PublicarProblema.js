@@ -12,24 +12,24 @@ import { FormControl, Input, InputLabel, FormHelperText, Button, TextField, Sele
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 // Custom Libraries
-import AuthService from '../services';
+import { publicar } from '../services/dataService';
 
 
 class PublicarProblema extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
 
     document.title = 'Publicar Problema | LetThemFix';
 
     this.state = {
+      user: props.user,
       loading: false,
-      problemId: 0,
-      userId: 0,
       problemTitle: '',
       problemDescription: '',
       problemImages: [],
       rangoPresupuestario: { minimo: 0, maximo: 0 },
       problemType: '',
+      problemZone: '',
       errors: {},
       response: {
         error: false,
@@ -108,15 +108,15 @@ class PublicarProblema extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    const {
-      firstName, lastName, email, password, password_confirmation, errors,
-    } = this.state;
-    const credentials = {
-      firstName,
-      lastName,
-      email,
-      password,
-      password_confirmation,
+    const {user, problemTitle, problemDescription, rangoPresupuestario, problemType, problemZone, errors} = this.state;
+    const problemaData = {
+      "idCliente": user.idCliente,
+      "titulo": problemTitle,
+      "descripcion": problemDescription,
+      "presupuestoMinimo": rangoPresupuestario.minimo,
+      "presupuestoMaximo": rangoPresupuestario.maximo,
+      "zona": problemZone,
+      "idRubro": problemType,
     };
 
     // Set response state back to default.
@@ -124,12 +124,12 @@ class PublicarProblema extends Component {
 
     if (!Object.keys(errors).length) {
       this.setState({ loading: true });
-      this.submit(credentials);
+      this.submit(problemaData);
     }
   }
 
-  submit(credentials) {
-    this.props.dispatch(AuthService.register(credentials))
+  submit(problemaData) {
+    this.props.dispatch(publicar(problemaData))
       .then(() => {
         this.setState({ loading: false, success: true });
       })
