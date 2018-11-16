@@ -46,6 +46,21 @@ export function aceptarLicitacion(idPresupuesto, problemId) {
   );
 }
 
+export function eliminarProblema(problemId) {
+  return dispatch => (
+    new Promise((resolve, reject) => {
+      Http.get(apiBase + 'actionProblemas?idProblemaEliminar=' + problemId)
+        .then((response) => {
+          return resolve(response);
+        })
+        .catch((error) => {
+          console.log(error);
+          return reject(error);
+        });
+    })
+  );
+}
+
 export function obtenerProblema(idProblema) {
   return dispatch => (
     new Promise((resolve, reject) => {
@@ -100,4 +115,30 @@ export function obtenerPresupuestosDeProblema(idProblema) {
         });
     })
   );
+}
+
+export function actualizarUsuario(userType, newUserData) {
+  if (userType === 'user') {
+    return dispatch => (
+      new Promise((resolve, reject) => {
+        Http.put(apiBase + 'actionClientes', newUserData)
+          .then(res => resolve(res.data))
+          .catch((err) => {
+            const error = err.error;
+            return reject(error);
+          });
+      })
+    );
+  } else {
+    return dispatch => (
+      new Promise((resolve, reject) => {
+        Http.put(apiBase + 'actionProfesionales', newUserData)
+          .then(res => resolve(res.data))
+          .catch((err) => {
+            const error = err.error;
+            return reject(error);
+          });
+      })
+    );
+  }
 }

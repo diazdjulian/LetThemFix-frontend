@@ -1,5 +1,4 @@
 import * as ActionTypes from '../action-types';
-import Http from '../../Http';
 
 const initialState = {
   isAuthenticated: false,
@@ -7,6 +6,7 @@ const initialState = {
 };
 
 const authLogin = (state, payload) => {
+  payload.fechaNacimiento = (new Date(payload.fechaNacimiento)).toLocaleDateString('en-GB')
   localStorage.setItem('user', JSON.stringify(payload));
   const stateObj = Object.assign({}, state, {
     isAuthenticated: true,
@@ -41,6 +41,8 @@ const Auth = (state = initialState, { type, payload = null }) => {
       return checkAuth(state);
     case ActionTypes.AUTH_LOGOUT:
       return logout(state);
+    case ActionTypes.RELOAD_USER:
+      return authLogin(state, payload);
     default:
       return state;
   }

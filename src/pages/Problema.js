@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Redirect } from 'react-router'
 
-import { aceptarLicitacion, obtenerProblema, obtenerPresupuestosDeProblema } from '../services/dataService';
+import { eliminarProblema, aceptarLicitacion, obtenerProblema, obtenerPresupuestosDeProblema } from '../services/dataService';
 
 // Material Components
 import { withStyles } from '@material-ui/core/styles/';
@@ -92,7 +92,22 @@ class Problema extends Component {
   aceptarPresupuesto(idPresupuesto) {
     this.props.dispatch(aceptarLicitacion(idPresupuesto, this.state.problemId))
     .then((response) => {
-      return <Redirect to={'/problema/' + this.state.problemId} />
+      window.location.reload()
+    })
+    .catch((err) => {
+      const response = {
+        error: true,
+        message: err.data,
+      };
+      this.setState({ response });
+      this.setState({ loading: false });
+    });
+  }
+
+  finalizar() {
+    this.props.dispatch(eliminarProblema(this.state.problemId))
+    .then((response) => {
+      window.location.href = "http://localhost:3000/";
     })
     .catch((err) => {
       const response = {
@@ -271,17 +286,20 @@ class Problema extends Component {
                 <CardContent>
                   <div className={classes.cardPricing}>
                     <Typography variant="title" color="textPrimary" align="center">
-                      Propuesta {presupuestoAceptado.observacion}
+                      Propuesta: {presupuestoAceptado.observacion}
                     </Typography>
                     <Typography variant="title" color="textPrimary" align="center">
                       Valor ${presupuestoAceptado.valor}
                     </Typography>
                     <Typography variant="title" color="textPrimary" align="center">
-                      Cantidad de Dias ${presupuestoAceptado.cantJornadasLaborables}
+                      Cantidad de Dias {presupuestoAceptado.cantJornadasLaborables}
                     </Typography>
                     <Typography variant="title" color="textPrimary" align="center">
                       Costos Variables (ej: materiales) ${presupuestoAceptado.valorMateriales}
                     </Typography>
+                    <CardActions style={{justifyContent: 'center'}}>
+                          <Button variant="raised" color="primary"size="small" onClick={() => {this.finalizar()}}>Marcar Terminado</Button>
+                    </CardActions>
                   </div>
                 </CardContent>
               </Card>

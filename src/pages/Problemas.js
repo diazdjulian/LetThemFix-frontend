@@ -136,7 +136,7 @@ class Problemas extends Component {
                       Zona: {problema.zona}
                     </Typography>
                     <Typography variant="body1" color="textPrimary" align="left">
-                      Calificacion Usuario: {problema.cliente.calificacionPromedio}
+                      Calificación Usuario: {problema.cliente.calificacionPromedio}
                     </Typography>
                   </div>
                 </CardContent>

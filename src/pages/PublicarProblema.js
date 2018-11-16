@@ -27,7 +27,8 @@ class PublicarProblema extends Component {
       problemTitle: '',
       problemDescription: '',
       problemImages: [],
-      rangoPresupuestario: { minimo: 0, maximo: 0 },
+      presupuestoMaximo: 0,
+      presupuestoMinimo: 0,
       problemType: '',
       problemZone: '',
       errors: {},
@@ -108,13 +109,13 @@ class PublicarProblema extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    const {user, problemTitle, problemDescription, rangoPresupuestario, problemType, problemZone, errors} = this.state;
+    const {user, problemTitle, problemDescription, presupuestoMaximo, presupuestoMinimo, problemType, problemZone, errors} = this.state;
     const problemaData = {
       "idCliente": user.idCliente,
       "titulo": problemTitle,
       "descripcion": problemDescription,
-      "presupuestoMinimo": rangoPresupuestario.minimo,
-      "presupuestoMaximo": rangoPresupuestario.maximo,
+      "presupuestoMinimo": presupuestoMinimo,
+      "presupuestoMaximo": presupuestoMaximo,
       "zona": problemZone,
       "idRubro": problemType,
     };
@@ -234,33 +235,48 @@ class PublicarProblema extends Component {
           </FormControl>
           <InputLabel>Ingresa tu rango presupuestario</InputLabel>
           <FormControl margin="normal" required fullWidth>
-            <InputLabel htmlFor="rangoPresupuestario">Desde</InputLabel>
+            <InputLabel htmlFor="presupuestoMinimo">Desde</InputLabel>
             <Input
-              id="rangoPresupuestario.minimo"
-              name="rangoPresupuestario.minimo"
+              id="presupuestoMinimo"
+              name="presupuestoMinimo"
               type="number"
               onChange={this.handleChange}
               onBlur={this.handleBlur}
-              error={('rangoPresupuestario.minimo' in errors)}
+              error={('presupuestoMinimo' in errors)}
               disabled={loading}
             />
-            { ('rangoPresupuestario.minimo' in errors) &&
+            { ('presupuestoMinimo' in errors) &&
             <FormHelperText error>{errors.email}</FormHelperText>
             }
           </FormControl>
           <FormControl margin="normal" required fullWidth>
-            <InputLabel htmlFor="rangoPresupuestario">hasta</InputLabel>
+            <InputLabel htmlFor="presupuestoMaximo">hasta</InputLabel>
             <Input
-              id="rangoPresupuestario.maximo"
-              name="rangoPresupuestario.maximo"
+              id="presupuestoMaximo"
+              name="presupuestoMaximo"
               type="number"
               onChange={this.handleChange}
               onBlur={this.handleBlur}
-              error={('rangoPresupuestario.maximo' in errors)}
+              error={('presupuestoMaximo' in errors)}
               disabled={loading}
             />
-            { ('rangoPresupuestario.maximo' in errors) &&
+            { ('presupuestoMaximo' in errors) &&
             <FormHelperText error>{errors.email}</FormHelperText>
+            }
+          </FormControl>
+          <FormControl margin="normal" required fullWidth>
+            <InputLabel htmlFor="problemZone">Zona del Problema</InputLabel>
+            <Input
+              id="problemZone"
+              name="problemZone"
+              onChange={this.handleChange}
+              onBlur={this.handleBlur}
+              error={('problemZone' in errors)}
+              autoFocus
+              disabled={loading}
+            />
+            {('problemZone' in errors) &&
+            <FormHelperText error>{errors.name}</FormHelperText>
             }
           </FormControl>
           <Button

@@ -105,7 +105,7 @@ class Login extends Component {
         this.loginForm.reset();
         const response = {
           error: true,
-          message: err.data,
+          message: JSON.parse(err.data).error,
         };
         this.setState({ response });
         this.setState({ loading: false });

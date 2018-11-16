@@ -7,6 +7,13 @@ export function authLogin(payload) {
   };
 }
 
+export function reloadUser(payload) {
+  return {
+    type: ActionTypes.RELOAD_USER,
+    payload,
+  };
+}
+
 export function authLogout() {
   return {
     type: ActionTypes.AUTH_LOGOUT,

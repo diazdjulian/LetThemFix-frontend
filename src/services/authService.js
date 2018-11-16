@@ -18,6 +18,38 @@ export function login(credentials) {
   );
 }
 
+export function retrieveUser(userType, nroFiscal) {
+  if (userType === 'user') {
+    return dispatch => (
+      new Promise((resolve, reject) => {
+        Http.get(apiBase + 'actionClientes?nroFiscal=' + nroFiscal)
+          .then(res => {
+            dispatch(action.reloadUser(res.data));
+            return resolve();
+          })
+          .catch((err) => {
+            const error = err.error;
+            return reject(error);
+          });
+      })
+    );
+  } else {
+    return dispatch => (
+      new Promise((resolve, reject) => {
+        Http.get(apiBase + 'actionProfesionales?nroFiscal=' + nroFiscal)
+        .then(res => {
+          dispatch(action.reloadUser(res.data));
+          return resolve();
+        })
+          .catch((err) => {
+            const error = err.error;
+            return reject(error);
+          });
+      })
+    );
+  }
+}
+
 export function register(userType, registerData) {
   if (userType === 'user') {
     return dispatch => (

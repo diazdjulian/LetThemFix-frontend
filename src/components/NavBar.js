@@ -81,9 +81,9 @@ class MenuAppBar extends Component {
                 onClose={this.handleClose}
               >
                 <MenuItem>
-                  <Link to="/profile">Profile Settings</Link>
+                  <Link to="/profile">Ver Tu Perfil</Link>
                 </MenuItem>
-                <MenuItem onClick={this.handleLogout}>Log Out</MenuItem>
+                <MenuItem onClick={this.handleLogout}>Salir</MenuItem>
               </Menu>
             </div>
           )}

@@ -110,8 +110,10 @@ class Dashboard extends Component {
                     </div>
                   </CardContent>
                   <CardActions style={{justifyContent: 'center'}}>
-                    <Button variant="raised" color="primary"size="small" href="/problemas">Ver todos</Button>
-                    <Button variant="raised" color="primary"size="small" href="/publicarProblema">Publica</Button>
+                    {problemas && problemas.length > 0 &&
+                      <Button variant="raised" color="primary"size="small" href="/problemas">Ver todos</Button>
+                    }
+                    <Button variant="raised" color="primary"size="small" href="/publicarProblema">Publicá</Button>
                   </CardActions>
                 </Card>
             </Grid> 
@@ -121,7 +123,7 @@ class Dashboard extends Component {
           <Grid item xs={12} md={4}>
             <Card>
                 <CardHeader
-                  title="Calificacion"
+                  title="Calificación"
                   subheader="Promedio de tus calificaciones"
                   titleTypographyProps={{ align: 'center' }}
                   subheaderTypographyProps={{ align: 'center' }}

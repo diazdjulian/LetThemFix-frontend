@@ -107,7 +107,7 @@ class Home extends Component {
         this.loginForm.reset();
         const response = {
           error: true,
-          message: err.data,
+          message: JSON.parse(err.data).error,
         };
         this.setState({ response });
         this.setState({ loading: false });
@@ -127,14 +127,14 @@ class Home extends Component {
                 Clickea la solucion
               </Typography>
               <Typography variant="subheading" component="h2">
-                Subi tu problema. Recibi propuestas. Espera tu Fixer.
+                Subí tu problema. Recibí propuestas. Esperá tu Fixer.
               </Typography>
             </div>
           </Grid>
           <Grid item xs={12} md={6}>
             <Paper className={classes.login} elevation={1}>
               <Typography variant="headline" align="center" component="h3">
-                Logearse en LetThemFix
+                Loguearse en LetThemFix
               </Typography>
 
               {response.error &&
@@ -181,7 +181,7 @@ class Home extends Component {
                   color="primary"
                   className={classes.submit}
                 >
-                  Logearse
+                  Loguearse
                 </Button>
               </form>
               <Typography align="center" component="p">
@@ -189,7 +189,7 @@ class Home extends Component {
               </Typography>
             </Paper>
             <Typography align="center" component="p" className={classes.passwordLink}>
-              <Link to="/forgot-password">Olvidate tu contraseña?</Link>
+              <Link to="/forgot-password">Olvidaste tu contraseña?</Link>
             </Typography>
           </Grid>
         </Grid>
