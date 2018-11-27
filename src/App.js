@@ -13,9 +13,8 @@ class App extends Component {
   constructor() {
     super();
   }
-  
+
   render() {
-    
     const { classes } = this.props;
 
     return(
@@ -28,7 +27,7 @@ class App extends Component {
     </div>
     )
   }
-  
+
 }
 
 const styles = theme => ({

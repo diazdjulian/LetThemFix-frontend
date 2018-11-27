@@ -13,6 +13,7 @@ import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import TextField from '@material-ui/core/TextField';
 
 // Custom Libraries
 import AuthService from '../services';
@@ -38,6 +39,7 @@ class Register extends Component {
       password: '',
       password_confirmation: '',
       fiscalId: '',
+      birthDate: new Date(),
       street: '',
       streetNumber: '',
       city: '',
@@ -197,14 +199,14 @@ class Register extends Component {
   
   handleSubmit(e) {
     e.preventDefault();
-    const { userType, name, lastname, email, user, password, fiscalId, street, streetNumber, city, state, phone, errors} = this.state;
+    const { userType, name, lastname, email, user, password, fiscalId, birthDate, street, streetNumber, city, state, phone, errors} = this.state;
     const registerData = {
       "nombre": name,
       "apellido": lastname,
       "usuario": user,
       "password": password,
       "nroFiscal": fiscalId,
-      "fechaNacimiento": "29/07/1994",
+      "fechaNacimiento": new Date(birthDate),
       "telefono": phone,
       "mail": email,
       "domicilio": street,
@@ -247,7 +249,7 @@ class Register extends Component {
     }
 
     const { classes } = this.props;
-    const { response, errors, loading } = this.state;
+    const { response, errors, loading, birthDate} = this.state;
 
     return (
       <Paper className={classes.slimActionForm} elevation={1}>
@@ -263,8 +265,10 @@ class Register extends Component {
 
         {this.state.success &&
           <Typography variant="subheading" align="center">
-            Registracion exitosa.<br />
-            <Link to="/">Por favor, logeate con tu email/usuario y contraseña.</Link>
+            Registracion exitosa
+            <br />
+            <Link to="/">Por favor, logeate con tu email/usuario y contraseña</Link>
+            <br /><br />
           </Typography>
         }
 
@@ -403,7 +407,6 @@ class Register extends Component {
                 id="fiscalId"
                 name="fiscalId"
                 autoComplete="fiscalId"
-                
                 onChange={this.handleChange}
                 onBlur={this.handleBlur}
                 error={('fiscalId' in errors)}
@@ -413,7 +416,24 @@ class Register extends Component {
               {('fiscalId' in errors) &&
               <FormHelperText error={true}>{errors.fiscalId}</FormHelperText>
               }
-            </FormControl>
+          </FormControl>
+          <FormControl margin="normal" required fullWidth>
+            <TextField
+              id="birthDate"
+              name="birthDate"
+              label="Fecha de Nacimiento"
+              type="date"
+              onChange={this.handleChange}
+              onBlur={this.handleBlur}
+              value={birthDate}
+              error={('birthDate' in errors)}
+              autoFocus
+              disabled={loading}
+            />
+            {('birthDate' in errors) &&
+            <FormHelperText error={true}>{errors.birthDate}</FormHelperText>
+            }
+          </FormControl>
           <FormControl margin="normal" required fullWidth>
             <InputLabel>Calle</InputLabel>
             <Input

@@ -10,7 +10,7 @@ const authLogin = (state, payload) => {
   localStorage.setItem('user', JSON.stringify(payload));
   const stateObj = Object.assign({}, state, {
     isAuthenticated: true,
-    user: JSON.parse( localStorage.getItem('user') ),
+    user: JSON.parse(localStorage.getItem('user')),
   });
   return stateObj;
 };
@@ -18,13 +18,12 @@ const authLogin = (state, payload) => {
 const checkAuth = (state) => {
   const stateObj = Object.assign({}, state, {
     isAuthenticated: !!localStorage.getItem('user'),
-    user: JSON.parse( localStorage.getItem('user') )
+    user: JSON.parse(localStorage.getItem('user'))
   });
   return stateObj;
 };
 
 const logout = (state) => {
-  localStorage.removeItem('access_token');
   localStorage.removeItem('user');
   const stateObj = Object.assign({}, state, {
     isAuthenticated: false,

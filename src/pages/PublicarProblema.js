@@ -222,7 +222,6 @@ class PublicarProblema extends Component {
               name="problemDescription"
               label="Comenta tu problema, se preciso"
               multiline
-              rowsMax="10"
               onChange={this.handleChange}
               margin="normal"
               onBlur={this.handleBlur}
@@ -233,6 +232,7 @@ class PublicarProblema extends Component {
             <FormHelperText error>{errors.name}</FormHelperText>
             }
           </FormControl>
+          <br/><br/>
           <InputLabel>Ingresa tu rango presupuestario</InputLabel>
           <FormControl margin="normal" required fullWidth>
             <InputLabel htmlFor="presupuestoMinimo">Desde</InputLabel>
