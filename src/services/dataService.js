@@ -142,3 +142,59 @@ export function actualizarUsuario(userType, newUserData) {
     );
   }
 }
+
+export function obtenerProfesiones() {
+  return dispatch => (
+    new Promise((resolve, reject) => {
+      Http.get(apiBase + 'actionRubros')
+        .then((res) => {
+          return resolve(res.data);
+        })
+        .catch((err) => {
+          return reject(err.response);
+        });
+    })
+  );
+}
+
+export function obtenerProfesionesDeProfesional(idProfesional) {
+  return dispatch => (
+    new Promise((resolve, reject) => {
+      Http.get(apiBase + 'actionRubros?idProfesional=' + idProfesional)
+        .then((res) => {
+          return resolve(res.data);
+        })
+        .catch((err) => {
+          return reject(err.response);
+        });
+    })
+  );
+}
+
+export function agregarProfesionAProfesional(idProfesional, idRubro, matricula) {
+  return dispatch => (
+    new Promise((resolve, reject) => {
+      Http.post(apiBase + 'actionRubros', {idProfesional: idProfesional, idRubro: idRubro, matricula: matricula})
+        .then((res) => {
+          return resolve(res.data);
+        })
+        .catch((err) => {
+          return reject(err.response);
+        });
+    })
+  );
+}
+
+export function quitarProfesionAProfesional(idProfesional, idRubro) {
+  return dispatch => (
+    new Promise((resolve, reject) => {
+      Http.delete(apiBase + 'actionRubros?idProfesional=' + idProfesional + '&idRubro=' +idRubro)
+        .then((res) => {
+          return resolve(res.data);
+        })
+        .catch((err) => {
+          return reject(err.response);
+        });
+    })
+  );
+}

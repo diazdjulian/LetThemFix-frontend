@@ -19,7 +19,7 @@ class MenuAppBar extends Component {
     super(props);
     
     this.state = {
-      anchorEl: null,
+      anchorEl: null
     };
 
     this.handleLogout = this.handleLogout.bind(this);
@@ -40,7 +40,7 @@ class MenuAppBar extends Component {
 
   render() {
     const { classes } = this.props;
-    const { anchorEl } = this.state;
+    const { anchorEl, user } = this.state;
     const open = Boolean(anchorEl);
 
     return (
@@ -81,8 +81,13 @@ class MenuAppBar extends Component {
                 onClose={this.handleClose}
               >
                 <MenuItem>
-                  <Link to="/profile">Ver Tu Perfil</Link>
+                  <Link  style={{ textDecoration: 'none' }} to="/profile">Perfil</Link>
                 </MenuItem>
+                {this.props.user.userType === 'fixer' &&
+                  <MenuItem>
+                    <Link  style={{ textDecoration: 'none' }} to="/professions">Manejar Profesiones</Link>
+                  </MenuItem>
+                }
                 <MenuItem onClick={this.handleLogout}>Salir</MenuItem>
               </Menu>
             </div>
@@ -99,6 +104,7 @@ MenuAppBar.propTypes = {
 
 const mapStateToProps = state => ({
   isAuthenticated: state.Auth.isAuthenticated,
+  user: state.Auth.user,
 });
 
 const styles = theme => ({

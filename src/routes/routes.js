@@ -10,6 +10,7 @@ import Profile from '../pages/Profile';
 import NoMatch from '../pages/NoMatch';
 import Licitacion from '../pages/Licitacion';
 import PublicarProblema from '../pages/PublicarProblema';
+import Profesiones from '../pages/Profesiones';
 
 const routes = [
   {
@@ -72,6 +73,12 @@ const routes = [
     exact: true,
     auth: true,
     component: PublicarProblema,
+  },
+  {
+    path: '/professions',
+    exact: true,
+    auth: true,
+    component: Profesiones,
   },
   {
     path: '',

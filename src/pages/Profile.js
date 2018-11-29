@@ -70,10 +70,10 @@ class Profile extends Component {
   }
 
   handleSave() {
-    this.props.dispatch(actualizarUsuario('user', this.state.user))
+    this.props.dispatch(actualizarUsuario(this.state.user.userType, this.state.user))
       .then((response) => {
         console.log(response);
-        this.props.dispatch(retrieveUser('user', this.state.user.nroFiscal))
+        this.props.dispatch(retrieveUser(this.state.user.userType, this.state.user.nroFiscal))
           .then((response) => window.location.reload())
           .catch((err) => window.location.reload())
       })
@@ -144,28 +144,27 @@ class Profile extends Component {
           </ListItem>
           <Divider component="li"/>
 
-          {/* <ListItem>
+          <ListItem>
             <FormControl margin="normal" fullWidth>
-              <InputLabel htmlFor="fecha_nacimiento">Fecha de Nacimiento</InputLabel>
-              <TextField
-                id="fecha_nacimiento"
-                name="fecha_nacimiento"
-                type="date"
-                value={user.fecha_nacimiento}
-                disabled
+              <InputLabel htmlFor="fechaNacimiento">Fecha de Nacimiento</InputLabel>
+              <Input
+                id="fechaNacimiento"
+                name="fechaNacimiento"
+                value={user.fechaNacimiento}
+                disabled={!active.includes('fechaNacimiento')}
                 disableUnderline
                 style={{'color':'#000'}}
-                InputLabelProps={{ shrink: true, }}
+                onChange={this.handleChange}
+                onBlur={this.handleBlur}
               />
             </FormControl>
             <ListItemSecondaryAction>
-            <IconButton aria-label="Editar" onClick={e => this.toggleEdit(e, 'fecha_nacimiento')}>
-                {active.includes('fecha_nacimiento') ? <CheckIcon /> : <EditIcon />}
-                <EditIcon />
+            <IconButton aria-label="Editar" onClick={e => this.toggleEdit(e, 'fechaNacimiento')}>
+                {active.includes('fechaNacimiento') ? <CheckIcon /> : <EditIcon />}
               </IconButton>
             </ListItemSecondaryAction>
           </ListItem>
-          <Divider component="li"/> */}
+          <Divider component="li"/>
 
           <ListItem>
             <FormControl margin="normal" fullWidth>
