@@ -83,8 +83,6 @@ class Problema extends Component {
     }
   }
 
-
-
   clearMessage() {
     this.setState({ message: '' });
   }
@@ -214,7 +212,7 @@ class Problema extends Component {
             <Card>
                 <CardHeader
                   title="Presupuesto Recibidos"
-                  subheader="Estas son las propuestos de los Fixers"
+                  subheader="Estas son los presupuestos de los Fixers"
                   titleTypographyProps={{ align: 'center' }}
                   subheaderTypographyProps={{ align: 'center' }}
                   className={classes.cardHeader}

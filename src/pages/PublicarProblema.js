@@ -12,7 +12,7 @@ import { FormControl, Input, InputLabel, FormHelperText, Button, TextField, Sele
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 // Custom Libraries
-import { publicar } from '../services/dataService';
+import { publicar, obtenerProfesiones } from '../services/dataService';
 
 
 class PublicarProblema extends Component {
@@ -37,8 +37,22 @@ class PublicarProblema extends Component {
         message: '',
       },
       success: false,
-      rubros: [{name: "Plomeria", id: 1}, {name: "Techista", id: 2}, {name: "Electricista", id: 3}, {name: "Albañil", id: 4}]
+      rubros: []
     };
+  }
+
+  componentWillMount() {
+    this.props.dispatch(obtenerProfesiones())
+      .then((response) => {
+        this.setState({ rubros: response });
+      }).catch((err) => {
+        const response = {
+          error: true,
+          message: err.data,
+        };
+        this.setState({ response });
+        this.setState({ loading: false });
+      });
   }
 
   handleChange = (e) => {
@@ -191,10 +205,9 @@ class PublicarProblema extends Component {
               value={this.state.problemType}
               onChange={this.handleChange}
             >
-              <MenuItem value=""><em>Seleccionar</em></MenuItem>
               {this.state.rubros.map((rubro, index) => {
                 return (
-                  <MenuItem value={rubro.id}>{rubro.name}</MenuItem>
+                  <MenuItem value={rubro.idRubro}>{rubro.descripcion}</MenuItem>
                 );})}
             </Select>
             {('problemType' in errors) &&

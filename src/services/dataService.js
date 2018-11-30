@@ -1,22 +1,35 @@
-import Http, { appApiBase } from '../Http';
+import Http from '../Http';
 
 const apiBase = 'http://localhost:8080/tp_fixers/';
 
-export function licitar(licitacion) {
-  return dispatch => (
-    new Promise((resolve, reject) => {
-      Http.post(apiBase + 'actionPresupuestos', licitacion)
-        .then((response) => {
-          return resolve(response);
-        })
-        .catch((error) => {
-          console.log(error);
-          return reject(error);
-        });
-    })
-  );
+// PROFILES
+export function actualizarUsuario(userType, newUserData) {
+  if (userType === 'user') {
+    return dispatch => (
+      new Promise((resolve, reject) => {
+        Http.put(apiBase + 'actionClientes', newUserData)
+          .then(res => resolve(res.data))
+          .catch((err) => {
+            const error = err.error;
+            return reject(error);
+          });
+      })
+    );
+  } else {
+    return dispatch => (
+      new Promise((resolve, reject) => {
+        Http.put(apiBase + 'actionProfesionales', newUserData)
+          .then(res => resolve(res.data))
+          .catch((err) => {
+            const error = err.error;
+            return reject(error);
+          });
+      })
+    );
+  }
 }
 
+// PROBLEMAS
 export function publicar(publicacion) {
   return dispatch => (
     new Promise((resolve, reject) => {
@@ -26,36 +39,6 @@ export function publicar(publicacion) {
         })
         .catch((err) => {
           return reject(err.response);
-        });
-    })
-  );
-}
-
-export function aceptarLicitacion(idPresupuesto, problemId) {
-  return dispatch => (
-    new Promise((resolve, reject) => {
-      Http.put(apiBase + 'actionPresupuestos', {"idPresupuesto": idPresupuesto, "idProblema": problemId})
-        .then((response) => {
-          return resolve(response);
-        })
-        .catch((error) => {
-          console.log(error);
-          return reject(error);
-        });
-    })
-  );
-}
-
-export function eliminarProblema(problemId) {
-  return dispatch => (
-    new Promise((resolve, reject) => {
-      Http.get(apiBase + 'actionProblemas?idProblemaEliminar=' + problemId)
-        .then((response) => {
-          return resolve(response);
-        })
-        .catch((error) => {
-          console.log(error);
-          return reject(error);
         });
     })
   );
@@ -103,6 +86,80 @@ export function obtenerProblemasDeCliente(idCliente) {
   );
 }
 
+export function obtenerProblemasDeProfesional(idProfesional) {
+  return dispatch => (
+    new Promise((resolve, reject) => {
+      Http.get(apiBase + 'actionProblemas?idProfesional=' + idProfesional)
+        .then((res) => {
+          return resolve(res.data);
+        })
+        .catch((err) => {
+          return reject(err.response);
+        });
+    })
+  );
+}
+
+export function obtenerPosiblesProblemasDeProfesional(idProfesional) {
+  return dispatch => (
+    new Promise((resolve, reject) => {
+      Http.get(apiBase + 'actionProblemas?idProfesionalPosibles=' + idProfesional)
+        .then((res) => {
+          return resolve(res.data);
+        })
+        .catch((err) => {
+          return reject(err.response);
+        });
+    })
+  );
+}
+
+export function eliminarProblema(problemId) {
+  return dispatch => (
+    new Promise((resolve, reject) => {
+      Http.get(apiBase + 'actionProblemas?idProblemaEliminar=' + problemId)
+        .then((response) => {
+          return resolve(response);
+        })
+        .catch((error) => {
+          console.log(error);
+          return reject(error);
+        });
+    })
+  );
+}
+
+// PRESUPUESTOS
+export function licitar(licitacion) {
+  return dispatch => (
+    new Promise((resolve, reject) => {
+      Http.post(apiBase + 'actionPresupuestos', licitacion)
+        .then((response) => {
+          return resolve(response);
+        })
+        .catch((error) => {
+          console.log(error);
+          return reject(error);
+        });
+    })
+  );
+}
+
+export function aceptarLicitacion(idPresupuesto, problemId) {
+  return dispatch => (
+    new Promise((resolve, reject) => {
+      Http.put(apiBase + 'actionPresupuestos', {"idPresupuesto": idPresupuesto, "idProblema": problemId})
+        .then((response) => {
+          return resolve(response);
+        })
+        .catch((error) => {
+          console.log(error);
+          return reject(error);
+        });
+    })
+  );
+}
+
 export function obtenerPresupuestosDeProblema(idProblema) {
   return dispatch => (
     new Promise((resolve, reject) => {
@@ -117,32 +174,7 @@ export function obtenerPresupuestosDeProblema(idProblema) {
   );
 }
 
-export function actualizarUsuario(userType, newUserData) {
-  if (userType === 'user') {
-    return dispatch => (
-      new Promise((resolve, reject) => {
-        Http.put(apiBase + 'actionClientes', newUserData)
-          .then(res => resolve(res.data))
-          .catch((err) => {
-            const error = err.error;
-            return reject(error);
-          });
-      })
-    );
-  } else {
-    return dispatch => (
-      new Promise((resolve, reject) => {
-        Http.put(apiBase + 'actionProfesionales', newUserData)
-          .then(res => resolve(res.data))
-          .catch((err) => {
-            const error = err.error;
-            return reject(error);
-          });
-      })
-    );
-  }
-}
-
+// PROFESIONES
 export function obtenerProfesiones() {
   return dispatch => (
     new Promise((resolve, reject) => {

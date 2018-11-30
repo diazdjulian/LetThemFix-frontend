@@ -85,7 +85,10 @@ class Dashboard extends Component {
                     </div>
                   </CardContent>
                   <CardActions style={{justifyContent: 'center'}}>
-                    <Button variant="raised" color="primary"size="small" href="/problemas">Ver todos</Button>
+                    <Button
+                      disabled={problemas === null} variant="raised"
+                      color="primary"size="small" href="/problemas"
+                    >Ver todos</Button>
                   </CardActions>
                 </Card>
             </Grid>
@@ -110,9 +113,8 @@ class Dashboard extends Component {
                     </div>
                   </CardContent>
                   <CardActions style={{justifyContent: 'center'}}>
-                    {problemas && problemas.length > 0 &&
-                      <Button variant="raised" color="primary"size="small" href="/problemas">Ver todos</Button>
-                    }
+                    <Button variant="raised" color="primary"size="small" href="/problemas"
+                      disabled={problemas === null}>Ver todos</Button>
                     <Button variant="raised" color="primary"size="small" href="/publicarProblema">Publicá</Button>
                   </CardActions>
                 </Card>
