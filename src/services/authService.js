@@ -76,6 +76,32 @@ export function register(userType, registerData) {
   }
 }
 
+export function checkData(userType, dataToCheck, dataValue) {
+  if (userType === 'user') {
+    return dispatch => (
+      new Promise((resolve, reject) => {
+        Http.get(apiBase + 'actionClientes?' + dataToCheck + '=' + dataValue)
+          .then(res => resolve(res.data))
+          .catch((err) => {
+            const error = err.error;
+            return reject(error);
+          });
+      })
+    );
+  } else {
+    return dispatch => (
+      new Promise((resolve, reject) => {
+        Http.get(apiBase + 'actionProfesionales?' + dataToCheck + '=' + dataValue)
+          .then(res => resolve(res.data))
+          .catch((err) => {
+            const error = err.error;
+            return reject(error);
+          });
+      })
+    );
+  }
+}
+
 export function resetPassword(credentials) {
   return dispatch => (
     new Promise((resolve, reject) => {

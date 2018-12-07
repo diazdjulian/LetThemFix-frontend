@@ -12,7 +12,7 @@ import { FormControl, Input, InputLabel, FormHelperText, Button, TextField } fro
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 // Custom Libraries
-import { licitar } from '../services/dataService';
+import { licitar, obtenerProblema} from '../services/dataService';
 
 
 class Licitacion extends Component {
@@ -25,6 +25,7 @@ class Licitacion extends Component {
       loading: false,
       user: props.user,
       problemId: props.match.params.problemaId,
+      problem: null,
       presupuesto: 0,
       propuesta: '',
       costosVariables: 0,
@@ -36,6 +37,21 @@ class Licitacion extends Component {
       },
       success: false,
     };
+  }
+
+  componentWillMount() {
+    this.props.dispatch(obtenerProblema(this.state.problemId))
+    .then((response) => {
+      this.setState({ problem: response[0] });
+    })
+    .catch((err) => {
+      const response = {
+        error: true,
+        message: err.data,
+      };
+      this.setState({ response });
+      this.setState({ loading: false });
+    });
   }
 
   handleChange = (e) => {
@@ -64,13 +80,21 @@ class Licitacion extends Component {
     const { errors } = this.state;
 
     if (field === 'presupuesto' && validator.isLength(value, { min: 1 }) === false) {
-      errors.name = 'Debes ingresar un presupuesto';
+      errors.presupuesto = 'Debes ingresar un presupuesto';
       this.setState(errors);
       return;
     }
 
+    if (field === 'presupuesto') {
+      if (value > this.state.problem.presupuestoMaximo) {
+        errors.presupuesto = 'No debes superar el presupuesto maximo';
+        this.setState(errors);
+        return;
+      }
+    }
+
     if (field === 'propuesta' && validator.isLength(value, { min: 1 }) === false) {
-      errors.name = 'Debes comentar tu propuesta';
+      errors.propuesta = 'Debes comentar tu propuesta';
       this.setState(errors);
       return;
     }
@@ -85,13 +109,14 @@ class Licitacion extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    const { presupuesto, propuesta, costosVariables, cantidadJornadasLab, problemId, errors } = this.state;
+    const { presupuesto, propuesta, costosVariables, cantidadJornadasLab, problemId, errors, user } = this.state;
     const licitacionData = {
       "observacion": propuesta,
       "valor": presupuesto,
       "cantJornadasLaborables": cantidadJornadasLab,
       "valorMateriales": costosVariables,
       "idProblema": problemId,
+      "idProfesional": user.idProfesional
     };
 
     // Set response state back to default.
@@ -137,9 +162,11 @@ class Licitacion extends Component {
           Licita tu Propuesta
         </Typography>
 
-        <Typography variant="subheading" align="center" component="h3">
-          Propone un presupuesto que se adapte a los requerimientos del cliente
-        </Typography>
+        {!this.state.success &&
+          <Typography variant="subheading" align="center" component="h3">
+            Propone un presupuesto que se adapte a los requerimientos del cliente
+          </Typography>
+        }
 
         {response.error &&
           <Typography variant="subheading" align="center" color="secondary">
@@ -149,8 +176,8 @@ class Licitacion extends Component {
 
         {this.state.success &&
           <Typography variant="subheading" align="center">
-            Presupuesto enviado.<br />
-            <Link to="/">Volver al Dashboard.</Link>
+            <br />Presupuesto enviado<br />
+            <Link to="/">Volver al Dashboard</Link>
           </Typography>
         }
 
@@ -202,7 +229,7 @@ class Licitacion extends Component {
               disabled={loading}
             />
             { ('costosVariables' in errors) &&
-            <FormHelperText error>{errors.email}</FormHelperText>
+            <FormHelperText error>{errors.costosVariables}</FormHelperText>
             }
           </FormControl>
           <FormControl margin="normal" fullWidth>
@@ -217,7 +244,7 @@ class Licitacion extends Component {
               disabled={loading}
             />
             { ('cantidadJornadasLab' in errors) &&
-            <FormHelperText error>{errors.email}</FormHelperText>
+            <FormHelperText error>{errors.cantidadJornadasLab}</FormHelperText>
             }
           </FormControl>
           <Button

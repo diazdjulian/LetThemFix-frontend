@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
-import { FormControl, Input, InputLabel, TextField } from '@material-ui/core';
+import { FormControl, Input, InputLabel, TextField, FormHelperText } from '@material-ui/core';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
@@ -14,11 +14,18 @@ import IconButton from '@material-ui/core/IconButton';
 import Divider from '@material-ui/core/Divider';
 import EditIcon from '@material-ui/icons/Edit';
 import CheckIcon from '@material-ui/icons/CheckCircleOutline';
+import Button from '@material-ui/core/Button';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 
 // Custom Libraries
 import Http, { appApiBase } from '../Http';
-import { actualizarUsuario } from '../services/dataService';
+import { actualizarUsuario, verificarCierreCuenta, darDeBajaCuenta } from '../services/dataService';
 import { retrieveUser } from "../services/authService"
+import * as actions from '../store/actions';
 
 class Profile extends Component {
   constructor(props) {
@@ -28,18 +35,17 @@ class Profile extends Component {
     this.state = {
       user: this.props.user,
       active: [],
+      open: false,
+      habilitadoACerrarCuenta: true,
+      contraseñaCierreCuenta: '',
+      contraseñaCierreCuentaError: false,
     };
-  }
 
-  componentDidMount() {
-    Http.get(`${appApiBase}/api/user`)
-      .then((response) => {
-        const { pizza = '', birthdate = '' } = response.data.entityObj.data.userattrib;
-        this.setState({ pizza, birthdate });
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    this.handleChange = this.handleChange.bind(this);
+    this.handleChangeForCierreCuenta = this.handleChangeForCierreCuenta.bind(this);
+    this.handleClose = this.handleClose.bind(this);
+    this.verificarPosibleCierre = this.verificarPosibleCierre.bind(this);
+    this.cerrarCuenta = this.cerrarCuenta.bind(this);
   }
 
   toggleEdit = (e, key) => {
@@ -71,20 +77,51 @@ class Profile extends Component {
 
   handleSave() {
     this.props.dispatch(actualizarUsuario(this.state.user.userType, this.state.user))
+    .then((response) => {
+      console.log(response);
+      this.props.dispatch(retrieveUser(this.state.user.userType, this.state.user.nroFiscal))
+        .then((response) => window.location.reload())
+        .catch((err) => window.location.reload())
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+  }
+
+  handleClose = () => {
+    this.setState({ open: false });
+    // this.setState({ contraseñaCierreCuentaError: false });
+    this.setState({ contraseñaCierreCuenta: '' });
+  }
+
+  handleChangeForCierreCuenta(e) {
+    const { name, value } = e.target;
+    this.setState({ [name]: value });
+  }
+
+  cerrarCuenta() {
+    if (this.state.user.password === this.state.contraseñaCierreCuenta) {
+      this.props.dispatch(darDeBajaCuenta(this.state.user.userType, this.state.user))
       .then((response) => {
-        console.log(response);
-        this.props.dispatch(retrieveUser(this.state.user.userType, this.state.user.nroFiscal))
-          .then((response) => window.location.reload())
-          .catch((err) => window.location.reload())
+        this.props.dispatch(actions.authLogout());
       })
-      .catch((error) => {
-        console.log(error);
-      });
+      .catch((err) => console.log(err))
+    } else {
+      this.state.contraseñaCierreCuentaError = true
+    }
+  }
+
+  verificarPosibleCierre() {
+    this.props.dispatch(verificarCierreCuenta(this.state.user.userType, this.state.user))
+    .then((response) => this.setState({ habilitadoACerrarCuenta: response }))
+    .catch((err) => console.log(err))
+
+    this.setState({ open: true });
   }
 
   render() {
     const { classes } = this.props;
-    const { user, active } = this.state;
+    const { user, active, habilitadoACerrarCuenta, contraseñaCierreCuenta, contraseñaCierreCuentaError } = this.state;
 
     return (
       <Paper className={classes.slimActionForm} elevation={1}>
@@ -298,6 +335,46 @@ class Profile extends Component {
           </ListItem>
           <Divider component="li"/>
         </List>
+
+        <List>
+          <ListItem>
+            <FormControl margin="normal" fullWidth>
+            <Button variant="contained" color="secondary" className={classes.button} onClick={this.verificarPosibleCierre}>
+              Cerrar Cuenta
+            </Button>
+            </FormControl>
+          </ListItem>
+        </List>
+
+        <Dialog open={this.state.open} onClose={this.handleClose} aria-labelledby="form-dialog-title">
+          <DialogTitle id="form-dialog-title">Cerrar Cuenta</DialogTitle>
+          <DialogContent>
+            {habilitadoACerrarCuenta &&
+              <DialogContentText>
+                Para confirmar el cierre de tu cuenta, debes ingresar tu contraseña
+              </DialogContentText>
+            }
+            {!habilitadoACerrarCuenta &&
+              <DialogContentText>
+                No es posible cerrar tu cuenta, estas asociado a almenos un Problema activo. Una vez finalizado podras hacerlo.
+              </DialogContentText>
+            }
+            {habilitadoACerrarCuenta &&
+              <TextField autoFocus margin="dense" name="contraseñaCierreCuenta" label="Contraseña" type="password" value={contraseñaCierreCuenta} onChange={this.handleChangeForCierreCuenta} fullWidth />
+            }
+            {contraseñaCierreCuentaError &&
+              <FormHelperText error={true}>Contraseña no correcta</FormHelperText>
+            }
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={this.handleClose} color="primary">
+              Cancelar
+            </Button>
+            <Button disabled={!habilitadoACerrarCuenta} onClick={this.cerrarCuenta} color="primary">
+              Confirmar Cierre
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Paper>
     );
   }

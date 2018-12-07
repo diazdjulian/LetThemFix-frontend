@@ -102,12 +102,16 @@ class Profesiones extends Component {
   }
 
   findWithAttr(array, attr, value) {
+    if (array) {
       for(var i = 0; i < array.length; i += 1) {
           if(array[i][attr] === value) {
               return true;
           }
       }
       return false;
+    } else {
+      return false;
+    }
   }
 
   findWithAttr2(array, attr, value) {
@@ -147,7 +151,9 @@ class Profesiones extends Component {
             return (
               <ListItem>
                 <ListItemText primary={profesion.descripcion} />
-                <ListItemText primary={this.hasMatricula(userProfesiones, 'idRubro', profesion.idRubro)} />
+                {userProfesiones &&
+                  <ListItemText primary={this.hasMatricula(userProfesiones, 'idRubro', profesion.idRubro)} />
+                }
                 <ListItemSecondaryAction>
                   <Switch
                     onChange={this.handleToggle(profesion.idRubro)}

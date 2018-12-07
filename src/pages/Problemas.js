@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { obtenerProblema, obtenerProblemasTodos, obtenerProblemasDeCliente } from '../services/dataService';
+import { obtenerPosiblesProblemasDeProfesional, obtenerProblemasDeCliente } from '../services/dataService';
 
 // Material Components
 import { withStyles } from '@material-ui/core/styles/';
@@ -90,7 +90,7 @@ class Problemas extends Component {
         this.setState({ loading: false });
       });
     } else if (typeof this.state.user.idProfesional !== 'undefined') {
-      this.props.dispatch(obtenerProblemasTodos())
+      this.props.dispatch(obtenerPosiblesProblemasDeProfesional(this.state.user.idProfesional))
       .then((response) => {
         this.setState({ problemas: response });
       })
@@ -136,7 +136,7 @@ class Problemas extends Component {
                       Zona: {problema.zona}
                     </Typography>
                     <Typography variant="body1" color="textPrimary" align="left">
-                      Calificación Usuario: {problema.cliente.calificacionPromedio}
+                      Calificación Usuario: {problema.cliente.calificacionPromedio.toFixed(1)}
                     </Typography>
                   </div>
                 </CardContent>

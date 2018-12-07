@@ -17,6 +17,7 @@ import TextField from '@material-ui/core/TextField';
 
 // Custom Libraries
 import AuthService from '../services';
+import { checkData } from '../services/authService'
 
 
 class Register extends Component {
@@ -163,6 +164,39 @@ class Register extends Component {
       errors.email = 'El mail debe ser una direccion valida.';
       this.setState(errors);
       return;
+    }
+
+    if ('email' === field) {
+      this.props.dispatch(checkData(this.state.userType, 'checkEmail', value))
+        .then((response) => {
+          if (!response) {
+            errors.email = 'El mail ya esta en uso';
+            this.setState(errors);
+            return;
+          }
+        })
+    }
+
+    if ('user' === field) {
+      this.props.dispatch(checkData(this.state.userType, 'checkUsuario', value))
+      .then((response) => {
+        if (!response) {
+          errors.user = 'El usuario ya esta en uso';
+          this.setState(errors);
+          return;
+        }
+      })
+    }
+
+    if ('fiscalId' === field) {
+      this.props.dispatch(checkData(this.state.userType, 'checkNroFiscal', value))
+      .then((response) => {
+        if (!response) {
+          errors.fiscalId = 'El numero fiscal ya esta en uso';
+          this.setState(errors);
+          return;
+        }
+      })
     }
 
     if ('email_confirmation' === field ) {
@@ -324,7 +358,6 @@ class Register extends Component {
               id="email"
               name="email"
               autoComplete="email"
-              
               onChange={this.handleChange}
               onBlur={this.handleBlur}
               error={('email' in errors)}

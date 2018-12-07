@@ -177,9 +177,11 @@ class PublicarProblema extends Component {
           Publica tu Problema
         </Typography>
 
-        <Typography variant="subheading" align="center" component="h3">
-          Selecciona el rubro, titula y detalla tu problema, y subi fotos para ayudar a los Fixers ;) 
-        </Typography>
+        {!this.state.success &&
+          <Typography variant="subheading" align="center" component="h3">
+            Selecciona el rubro, titula y detalla tu problema, ingresa un rango presupuestario y la zona del problema. 
+          </Typography>
+        }
 
         {response.error &&
           <Typography variant="subheading" align="center" color="secondary">
@@ -189,7 +191,7 @@ class PublicarProblema extends Component {
 
         {this.state.success &&
           <Typography variant="subheading" align="center">
-            Publicación de problema exitosa.<br />
+            <br/>Publicación de problema exitosa.<br />
             Analizaremos el mismo y en breve los Fixers podran verlo.<br />
             <Link to="/">Vuelve al Dashboard</Link>
           </Typography>

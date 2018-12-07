@@ -35,7 +35,7 @@ class Login extends Component {
     this.handleBlur = this.handleBlur.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
-  
+
   handleChange(e) {
     const { name, value } = e.target;
     this.setState({ [name]: value });

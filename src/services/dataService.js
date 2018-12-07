@@ -1,4 +1,5 @@
 import Http from '../Http';
+import { func } from 'prop-types';
 
 const apiBase = 'http://localhost:8080/tp_fixers/';
 
@@ -19,6 +20,84 @@ export function actualizarUsuario(userType, newUserData) {
     return dispatch => (
       new Promise((resolve, reject) => {
         Http.put(apiBase + 'actionProfesionales', newUserData)
+          .then(res => resolve(res.data))
+          .catch((err) => {
+            const error = err.error;
+            return reject(error);
+          });
+      })
+    );
+  }
+}
+
+export function verificarCierreCuenta(userType, user) {
+  if (userType === 'user') {
+    return dispatch => (
+      new Promise((resolve, reject) => {
+        Http.get(apiBase + 'actionClientes?idClienteCierre=' + user.idCliente)
+          .then(res => resolve(res.data))
+          .catch((err) => {
+            const error = err.error;
+            return reject(error);
+          });
+      })
+    );
+  } else {
+    return dispatch => (
+      new Promise((resolve, reject) => {
+        Http.get(apiBase + 'actionProfesionales?idProfesionalCierre=' + user.idProfesional)
+          .then(res => resolve(res.data))
+          .catch((err) => {
+            const error = err.error;
+            return reject(error);
+          });
+      })
+    );
+  }
+}
+
+export function darDeBajaCuenta(userType, user) {
+  if (userType === 'user') {
+    return dispatch => (
+      new Promise((resolve, reject) => {
+        Http.get(apiBase + 'actionClientes?idClienteEliminar=' + user.idCliente)
+          .then(res => resolve(res.data))
+          .catch((err) => {
+            const error = err.error;
+            return reject(error);
+          });
+      })
+    );
+  } else {
+    return dispatch => (
+      new Promise((resolve, reject) => {
+        Http.get(apiBase + 'actionProfesionales?idProfesionalEliminar=' + user.idProfesional)
+          .then(res => resolve(res.data))
+          .catch((err) => {
+            const error = err.error;
+            return reject(error);
+          });
+      })
+    );
+  }
+}
+
+export function obtenerProblemasActivos(userType, user) {
+  if (userType === 'user') {
+    return dispatch => (
+      new Promise((resolve, reject) => {
+        Http.get(apiBase + 'actionClientes?idClienteProblemasActivos=' + user.idCliente)
+          .then(res => resolve(res.data))
+          .catch((err) => {
+            const error = err.error;
+            return reject(error);
+          });
+      })
+    );
+  } else {
+    return dispatch => (
+      new Promise((resolve, reject) => {
+        Http.get(apiBase + 'actionProfesionales?idProfesionalProblemasActivos=' + user.idProfesional)
           .then(res => resolve(res.data))
           .catch((err) => {
             const error = err.error;
@@ -114,10 +193,10 @@ export function obtenerPosiblesProblemasDeProfesional(idProfesional) {
   );
 }
 
-export function eliminarProblema(problemId) {
+export function cerrarProblema(problemData) {
   return dispatch => (
     new Promise((resolve, reject) => {
-      Http.get(apiBase + 'actionProblemas?idProblemaEliminar=' + problemId)
+      Http.put(apiBase + 'actionProblemas', problemData)
         .then((response) => {
           return resolve(response);
         })
@@ -226,6 +305,22 @@ export function quitarProfesionAProfesional(idProfesional, idRubro) {
         })
         .catch((err) => {
           return reject(err.response);
+        });
+    })
+  );
+}
+
+// VALORACIONES
+export function valorar(valoracion) {
+  return dispatch => (
+    new Promise((resolve, reject) => {
+      Http.post(apiBase + 'actionValoraciones', valoracion)
+        .then((response) => {
+          return resolve(response);
+        })
+        .catch((error) => {
+          console.log(error);
+          return reject(error);
         });
     })
   );

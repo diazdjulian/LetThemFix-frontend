@@ -12,7 +12,7 @@ import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import CardHeader from '@material-ui/core/CardHeader';
 
-import { obtenerProblema, obtenerProblemasTodos, obtenerProblemasDeCliente } from '../services/dataService';
+import { obtenerPosiblesProblemasDeProfesional, obtenerProblemasDeCliente, obtenerProblemasActivos } from '../services/dataService';
 
 class Dashboard extends Component {
   
@@ -24,7 +24,8 @@ class Dashboard extends Component {
     this.state = {
       loading: false, 
       user: props.user,
-      problemas: []
+      problemas: [],
+      problemasActivos: 0,
     };
   }
 
@@ -42,8 +43,21 @@ class Dashboard extends Component {
         this.setState({ response });
         this.setState({ loading: false });
       });
+
+      this.props.dispatch(obtenerProblemasActivos(this.state.user.userType, this.state.user))
+      .then((response) => {
+        this.setState({ problemasActivos: response })
+      })
+      .catch((err) => {
+        const response = {
+          error: true,
+          message: err.data,
+        };
+        this.setState({ response });
+        this.setState({ loading: false });
+      })
     } else if (typeof this.state.user.idProfesional !== 'undefined') {
-      this.props.dispatch(obtenerProblemasTodos())
+      this.props.dispatch(obtenerPosiblesProblemasDeProfesional(this.state.user.idProfesional))
       .then((response) => {
         this.setState({ problemas: response });
       })
@@ -55,12 +69,25 @@ class Dashboard extends Component {
         this.setState({ response });
         this.setState({ loading: false });
       });
+
+      this.props.dispatch(obtenerProblemasActivos(this.state.user.userType, this.state.user))
+      .then((response) => {
+        this.setState({ problemasActivos: response })
+      })
+      .catch((err) => {
+        const response = {
+          error: true,
+          message: err.data,
+        };
+        this.setState({ response });
+        this.setState({ loading: false });
+      })
     }
   }
 
   render() {
     const { classes } = this.props;
-    const { user, problemas } = this.state;
+    const { user, problemas, problemasActivos } = this.state;
 
     return (
       <main className={classes.layout}>
@@ -134,7 +161,7 @@ class Dashboard extends Component {
                 <CardContent>
                   <div className={classes.cardPricing}>
                     <Typography variant="display2" color="textPrimary" align="center">
-                      {user.calificacionPromedio} / 10
+                      {user.calificacionPromedio.toFixed(1)} / 10
                     </Typography>
                   </div>
                 </CardContent>
@@ -155,7 +182,7 @@ class Dashboard extends Component {
                 <CardContent>
                   <div className={classes.cardPricing}>
                     <Typography variant="display2" color="textPrimary" align="center">
-                      6 trabajos
+                      0 trabajos
                     </Typography>
                   </div>
                 </CardContent>
@@ -177,7 +204,29 @@ class Dashboard extends Component {
                 <CardContent>
                   <div className={classes.cardPricing}>
                     <Typography variant="display2" color="textPrimary" align="center">
-                      3 trabajos
+                      {problemasActivos}
+                    </Typography>
+                  </div>
+                </CardContent>
+              </Card>
+          </Grid>
+          }
+
+          {/* --- Problemas Activos --- */}
+          {user.idCliente &&
+          <Grid item xs={12} md={4}>
+            <Card>
+                <CardHeader
+                  title="Problemas Activos"
+                  subheader="Tus Problemas actuales y en desarrollo"
+                  titleTypographyProps={{ align: 'center' }}
+                  subheaderTypographyProps={{ align: 'center' }}
+                  className={classes.cardHeader}
+                />
+                <CardContent>
+                  <div className={classes.cardPricing}>
+                    <Typography variant="display2" color="textPrimary" align="center">
+                      {problemasActivos}
                     </Typography>
                   </div>
                 </CardContent>
@@ -219,7 +268,7 @@ class Dashboard extends Component {
                 <CardContent>
                   <div className={classes.cardPricing}>
                     <Typography variant="display2" color="textPrimary" align="center">
-                      $23.312
+                      $0.0
                     </Typography>
                   </div>
                 </CardContent>
@@ -241,7 +290,7 @@ class Dashboard extends Component {
                 <CardContent>
                   <div className={classes.cardPricing}>
                     <Typography variant="display2" color="textPrimary" align="center">
-                      $4.754
+                      $0.0
                     </Typography>
                   </div>
                 </CardContent>
@@ -263,7 +312,7 @@ class Dashboard extends Component {
                 <CardContent>
                   <div className={classes.cardPricing}>
                     <Typography variant="display2" color="textPrimary" align="center">
-                      $4.520  
+                      $0.0
                     </Typography>
                   </div>
                 </CardContent>
